@@ -212,7 +212,11 @@ select option{background:var(--s2);color:var(--t);}
 
       <!-- Fila 1: métricas principales -->
       <div class="g4" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:12px;">
-        <div class="mc"><div class="ml">Balance</div><div class="mv gold" id="m-bal">$10,000</div><div class="ms">Cuenta actual</div></div>
+        <div class="mc" style="cursor:pointer;" onclick="editBalance()" title="Clic para editar">
+          <div class="ml" style="display:flex;align-items:center;gap:5px;">Balance <i class="ti ti-pencil" style="font-size:10px;opacity:.5;"></i></div>
+          <div class="mv gold" id="m-bal">$10,000</div>
+          <div class="ms">Cuenta inicial</div>
+        </div>
         <div class="mc"><div class="ml">P&L Hoy</div><div class="mv" id="m-pnl">$0.00</div><div class="ms" id="m-pnlp">0.00%</div></div>
         <div class="mc">
           <div class="ml">Win Rate</div>
@@ -578,7 +582,17 @@ let followPlan = null;
 let stepsCompleted = JSON.parse(localStorage.getItem('pt_steps') || '[]');
 let truthStates = JSON.parse(localStorage.getItem('pt_truths') || '{}');
 let eqChart = null, psChart = null;
-const INIT = 10000;
+let INIT = parseFloat(localStorage.getItem('pt_init') || '10000');
+
+function editBalance() {
+  const val = prompt('Ingresa el valor de tu cuenta inicial ($):', INIT);
+  if (val === null) return;
+  const n = parseFloat(val.replace(/[^0-9.]/g, ''));
+  if (!n || n <= 0) { alert('Valor inválido.'); return; }
+  INIT = n;
+  localStorage.setItem('pt_init', String(n));
+  renderDashboard();
+}
 
 const JOURNAL_QS = [
   '¿En qué momento de hoy sentiste que tu valor dependía del resultado de un trade?',
