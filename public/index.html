@@ -158,8 +158,26 @@ textarea{height:70px;resize:vertical;}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
-.modal{background:var(--s);border:0.5px solid var(--b2);border-radius:var(--r);padding:24px;width:100%;max-width:420px;box-shadow:0 24px 60px rgba(0,0,0,.5);}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.modal{background:var(--s);border:0.5px solid var(--b2);border-radius:var(--r);padding:24px;width:100%;max-width:420px;box-shadow:0 24px 60px rgba(0,0,0,.6);}
+
+/* INPUT MODAL */
+.imodal{background:var(--s);border:0.5px solid var(--b2);border-radius:var(--r);padding:28px 24px;width:100%;max-width:380px;box-shadow:0 24px 60px rgba(0,0,0,.6);animation:fadeUp .15s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.imodal-icon{width:42px;height:42px;border-radius:var(--r);background:var(--gold-bg);display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.imodal-icon i{color:#C9933A;font-size:20px;}
+.imodal-title{font-size:15px;font-weight:700;color:var(--t);margin-bottom:4px;}
+.imodal-sub{font-size:12px;color:var(--t2);margin-bottom:18px;line-height:1.5;}
+.imodal-input{font-family:inherit;font-size:15px;color:var(--t);background:var(--s2);border:1px solid var(--b2);border-radius:var(--rm);padding:11px 14px;width:100%;outline:none;transition:border-color .15s;}
+.imodal-input:focus{border-color:#C9933A;box-shadow:0 0 0 3px rgba(201,147,58,.15);}
+.imodal-input.prefix-wrap{padding-left:28px;}
+.imodal-prefix{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--t2);font-size:14px;pointer-events:none;}
+.imodal-actions{display:flex;gap:8px;margin-top:16px;}
+.imodal-confirm{flex:1;padding:11px;border-radius:var(--rm);background:#C9933A;color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s;}
+.imodal-confirm:hover{opacity:.88}
+.imodal-cancel{padding:11px 18px;border-radius:var(--rm);border:0.5px solid var(--b2);background:transparent;color:var(--t2);font-size:14px;cursor:pointer;font-family:inherit;transition:all .15s;}
+.imodal-cancel:hover{background:var(--s2);color:var(--t);}
+.imodal-error{font-size:11px;color:var(--neg-t);margin-top:6px;display:none;}
 .modal-title{font-size:14px;font-weight:600;color:var(--t);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .modal-title i{color:#C9933A;}
 .acc-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rm);border:0.5px solid var(--b);background:var(--s2);margin-bottom:8px;cursor:pointer;transition:all .15s;}
@@ -647,6 +665,53 @@ select option{background:var(--s2);color:var(--t);}
   </div>
 </div>
 
+<!-- ══════════════ MODAL INPUT GENÉRICO ══════════════ -->
+<div class="modal-overlay" id="imodal-overlay" style="display:none;" onclick="imodalCancel(event)">
+  <div class="imodal" onclick="event.stopPropagation()">
+    <div class="imodal-icon"><i class="ti ti-pencil" id="imodal-icon"></i></div>
+    <div class="imodal-title" id="imodal-title">Editar</div>
+    <div class="imodal-sub" id="imodal-sub"></div>
+    <div style="position:relative;">
+      <span class="imodal-prefix" id="imodal-prefix" style="display:none;"></span>
+      <input class="imodal-input" id="imodal-input" type="text" autocomplete="off"
+        onkeydown="if(event.key==='Enter')imodalConfirm();if(event.key==='Escape')imodalCancel();">
+    </div>
+    <div class="imodal-error" id="imodal-error">Ingresa un valor válido</div>
+    <div class="imodal-actions">
+      <button class="imodal-cancel" onclick="imodalCancel()">Cancelar</button>
+      <button class="imodal-confirm" id="imodal-confirm-btn" onclick="imodalConfirm()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MODAL NUEVA CUENTA ══════════════ -->
+<div class="modal-overlay" id="new-acc-modal" style="display:none;" onclick="if(event.target===this)closeNewAccModal()">
+  <div class="imodal" onclick="event.stopPropagation()" style="max-width:400px;">
+    <div class="imodal-icon"><i class="ti ti-wallet"></i></div>
+    <div class="imodal-title">Nueva cuenta</div>
+    <div class="imodal-sub">Crea una cuenta de trading independiente con su propio historial y balance.</div>
+    <div class="form-g" style="margin-bottom:12px;">
+      <label class="fl">Nombre de la cuenta</label>
+      <input class="imodal-input" id="new-acc-name" type="text" placeholder="Ej: Cuenta real, Prop firm, Demo..."
+        onkeydown="if(event.key==='Enter')document.getElementById('new-acc-bal').focus()">
+    </div>
+    <div class="form-g">
+      <label class="fl">Balance inicial</label>
+      <div style="position:relative;">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--t2);font-size:14px;pointer-events:none;">$</span>
+        <input class="imodal-input" id="new-acc-bal" type="number" placeholder="10,000" min="1" step="0.01"
+          style="padding-left:26px;"
+          onkeydown="if(event.key==='Enter')confirmNewAcc()">
+      </div>
+    </div>
+    <div class="imodal-error" id="new-acc-error">Completa todos los campos</div>
+    <div class="imodal-actions">
+      <button class="imodal-cancel" onclick="closeNewAccModal()">Cancelar</button>
+      <button class="imodal-confirm" onclick="confirmNewAcc()"><i class="ti ti-plus"></i> Crear cuenta</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════ MODAL CUENTAS ══════════════ -->
 <div class="modal-overlay" id="acc-modal" style="display:none;" onclick="closeAccModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
@@ -708,35 +773,91 @@ function updateTopbarAcc() {
   document.getElementById('topbar-acc-bal').textContent = '$' + bal.toFixed(2);
 }
 
+// ── Modal input genérico ──────────────────────────────
+let _imodalResolve = null;
+
+function showInputModal({ icon='ti-pencil', title, sub='', placeholder='', prefix='', value='', type='text', confirmLabel='Guardar' }) {
+  return new Promise(resolve => {
+    _imodalResolve = resolve;
+    document.getElementById('imodal-icon').className = 'ti ' + icon;
+    document.getElementById('imodal-title').textContent = title;
+    document.getElementById('imodal-sub').textContent = sub;
+    document.getElementById('imodal-confirm-btn').textContent = confirmLabel;
+    const inp = document.getElementById('imodal-input');
+    inp.type = type;
+    inp.placeholder = placeholder;
+    inp.value = value;
+    const pfx = document.getElementById('imodal-prefix');
+    if (prefix) { pfx.textContent = prefix; pfx.style.display = 'block'; inp.style.paddingLeft = '26px'; }
+    else { pfx.style.display = 'none'; inp.style.paddingLeft = '14px'; }
+    document.getElementById('imodal-error').style.display = 'none';
+    document.getElementById('imodal-overlay').style.display = 'flex';
+    setTimeout(() => inp.focus(), 80);
+  });
+}
+
+function imodalConfirm() {
+  const val = document.getElementById('imodal-input').value.trim();
+  if (!val) { document.getElementById('imodal-error').style.display = 'block'; return; }
+  document.getElementById('imodal-overlay').style.display = 'none';
+  if (_imodalResolve) { _imodalResolve(val); _imodalResolve = null; }
+}
+
+function imodalCancel(e) {
+  if (e && e.target !== document.getElementById('imodal-overlay')) return;
+  document.getElementById('imodal-overlay').style.display = 'none';
+  if (_imodalResolve) { _imodalResolve(null); _imodalResolve = null; }
+}
+
+// ── Nueva cuenta modal ───────────────────────────────
 function createAccount() {
-  const name = prompt('Nombre de la nueva cuenta:', 'Cuenta ' + (accounts.length + 1));
-  if (!name) return;
-  const initVal = prompt('Balance inicial ($):', '10000');
-  if (!initVal) return;
-  const init = parseFloat(initVal.replace(/[^0-9.]/g, ''));
-  if (!init || init <= 0) { alert('Valor inválido.'); return; }
-  const acc = { id: 'acc_' + Date.now(), name: name.trim(), init, trades: [] };
+  document.getElementById('new-acc-name').value = 'Cuenta ' + (accounts.length + 1);
+  document.getElementById('new-acc-bal').value = '10000';
+  document.getElementById('new-acc-error').style.display = 'none';
+  document.getElementById('new-acc-modal').style.display = 'flex';
+  setTimeout(() => { const n = document.getElementById('new-acc-name'); n.focus(); n.select(); }, 80);
+}
+
+function closeNewAccModal() {
+  document.getElementById('new-acc-modal').style.display = 'none';
+}
+
+function confirmNewAcc() {
+  const name = document.getElementById('new-acc-name').value.trim();
+  const init = parseFloat(document.getElementById('new-acc-bal').value);
+  const err = document.getElementById('new-acc-error');
+  if (!name || !init || init <= 0) { err.textContent = 'Completa todos los campos con valores válidos.'; err.style.display = 'block'; return; }
+  const acc = { id: 'acc_' + Date.now(), name, init, trades: [] };
   accounts.push(acc);
   saveAccounts();
+  closeNewAccModal();
   renderAccList();
 }
 
-function renameAccount(id) {
+async function renameAccount(id) {
   const acc = accounts.find(a => a.id === id);
-  const name = prompt('Nuevo nombre:', acc.name);
-  if (!name || !name.trim()) return;
-  acc.name = name.trim();
+  const name = await showInputModal({
+    icon: 'ti-pencil', title: 'Renombrar cuenta',
+    sub: 'Ingresa el nuevo nombre para esta cuenta.',
+    placeholder: 'Ej: Real, Prop firm, Demo...', value: acc.name, confirmLabel: 'Renombrar'
+  });
+  if (!name) return;
+  acc.name = name;
   saveAccounts();
   renderAccList();
   if (id === currentAccId) updateTopbarAcc();
 }
 
-function editAccountBalance(id) {
+async function editAccountBalance(id) {
   const acc = accounts.find(a => a.id === id);
-  const val = prompt('Balance inicial de "' + acc.name + '" ($):', acc.init);
+  const val = await showInputModal({
+    icon: 'ti-coin', title: 'Balance inicial · ' + acc.name,
+    sub: 'Este es el capital con el que empezaste esta cuenta. El P&L se calcula sobre este valor.',
+    placeholder: '10000', prefix: '$', value: acc.init, type: 'number', confirmLabel: 'Guardar balance'
+  });
   if (val === null) return;
-  const n = parseFloat(val.replace(/[^0-9.]/g, ''));
-  if (!n || n <= 0) { alert('Valor inválido.'); return; }
+  const n = parseFloat(val);
+  if (!n || n <= 0) return;
   acc.init = n;
   saveAccounts();
   renderAccList();
