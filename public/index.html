@@ -738,7 +738,7 @@ async function saveTrade() {
   let rr = 0;
   if (entry && sl && tp) { const risk = Math.abs(entry - sl); const reward = Math.abs(tp - entry); rr = risk > 0 ? (reward / risk).toFixed(2) : 0; }
   const trade = {
-    id: Date.now(), date: new Date().toISOString(),
+    id: Date.now(), date: localDate(new Date()) + 'T' + new Date().toTimeString().slice(0,8),
     dir, entry, sl, tp,
     lots: parseFloat(document.getElementById('t-lots').value) || 0.01,
     session: document.getElementById('t-ses').value, pnl,
@@ -797,7 +797,7 @@ async function analyzePlan() {
 
 // ── Dashboard ──
 function renderDashboard() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDate(new Date());
   const todayT = trades.filter(t => t.date.slice(0, 10) === today);
   const pnlToday = todayT.reduce((s, t) => s + (t.pnl || 0), 0);
   const allPnl = trades.reduce((s, t) => s + (t.pnl || 0), 0);
@@ -879,60 +879,86 @@ function renderPsych() {
   psChart = new Chart(ctx, { type: 'doughnut', data: { labels: lbls, datasets: [{ data: dt, backgroundColor: ['#C9933A', '#B5D4F4', '#F7C1C1', '#9FE1CB', '#D4537E', '#888780'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 8, color: '#888780', padding: 6 } } } } });
 }
 
+// fecha local como "YYYY-MM-DD" sin depender de UTC
+function localDate(d) {
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
+}
+
 function renderStreak() {
   const cal = document.getElementById('streak-cal');
   cal.innerHTML = '';
-  const today = new Date().toISOString().slice(0, 10);
+
+  const todayDate = new Date();
+  const todayStr = localDate(todayDate);
+
+  // día de semana del hoy (0=lunes)
+  const dow = (todayDate.getDay() + 6) % 7;
+
+  // lunes de la semana actual
+  const monThisWeek = new Date(todayDate);
+  monThisWeek.setDate(todayDate.getDate() - dow);
+
+  // construir 3 semanas: semana actual arriba, dos anteriores abajo
+  // semana 0 = más reciente (arriba), semana 2 = más antigua (abajo)
+  const weeks = [];
+  for (let w = 0; w < 3; w++) {
+    const week = [];
+    for (let d = 0; d < 7; d++) {
+      const day = new Date(monThisWeek);
+      day.setDate(monThisWeek.getDate() - w * 7 + d);
+      week.push(day);
+    }
+    weeks.unshift(week); // más antigua primero (arriba)
+  }
+
   const DAYS = ['L','M','X','J','V','S','D'];
 
   // cabecera días de semana
-  DAYS.forEach(d => {
+  DAYS.forEach(lbl => {
     const h = document.createElement('div');
-    h.style.cssText = 'text-align:center;font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;padding-bottom:2px;font-weight:600;';
-    h.textContent = d;
+    h.style.cssText = 'text-align:center;font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;padding-bottom:3px;font-weight:600;';
+    h.textContent = lbl;
     cal.appendChild(h);
   });
 
-  // 21 días hacia atrás desde hoy, alineado a lunes
-  const todayDate = new Date();
-  const dayOfWeek = (todayDate.getDay() + 6) % 7; // 0=lunes
-  const startDate = new Date(todayDate);
-  startDate.setDate(todayDate.getDate() - dayOfWeek - 14); // 3 semanas completas
+  // celdas semana por semana
+  weeks.forEach(week => {
+    week.forEach(day => {
+      const ds = localDate(day);
+      const isToday = ds === todayStr;
+      const isFuture = ds > todayStr;
+      const dayTrades = trades.filter(t => t.date.slice(0, 10) === ds);
+      const hasPlan = dayTrades.some(t => t.followPlan === true);
+      const hasNoPlan = dayTrades.length > 0 && !hasPlan;
 
-  for (let i = 0; i < 21; i++) {
-    const d = new Date(startDate);
-    d.setDate(startDate.getDate() + i);
-    const ds = d.toISOString().slice(0, 10);
-    const isToday = ds === today;
-    const isFuture = ds > today;
-    const dayTrades = trades.filter(t => t.date.slice(0, 10) === ds);
-    const hasPlan = dayTrades.some(t => t.followPlan === true);
-    const hasNoPlan = dayTrades.length > 0 && !hasPlan;
+      const div = document.createElement('div');
+      div.title = ds + (dayTrades.length ? ` · ${dayTrades.length} trade(s)` : '');
 
-    const div = document.createElement('div');
-    div.title = ds + (dayTrades.length ? ` · ${dayTrades.length} trade(s)` : '');
+      let bg = 'var(--s2)', border = 'rgba(255,255,255,0.07)', color = 'var(--t2)';
+      if (isFuture)      { bg = 'transparent'; border = 'transparent'; color = 'transparent'; }
+      else if (hasPlan)  { bg = 'var(--pos-bg)'; border = 'var(--pos-t)'; color = 'var(--pos-t)'; }
+      else if (hasNoPlan){ bg = 'var(--neg-bg)'; border = 'var(--neg-t)'; color = 'var(--neg-t)'; }
 
-    let bg = 'var(--s2)'; let border = 'var(--b)'; let color = 'var(--t2)';
-    if (isFuture) { bg = 'transparent'; border = 'transparent'; color = 'transparent'; }
-    else if (hasPlan) { bg = 'var(--pos-bg)'; border = 'var(--pos-t)'; color = 'var(--pos-t)'; }
-    else if (hasNoPlan) { bg = 'var(--neg-bg)'; border = 'var(--neg-t)'; color = 'var(--neg-t)'; }
-
-    div.style.cssText = `
-      width:40px;height:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-      border-radius:8px;border:0.5px solid ${border};background:${bg};
-      font-size:12px;font-weight:${isToday?'700':'500'};color:${color};
-      ${isToday ? 'outline:1.5px solid #C9933A;outline-offset:1px;' : ''}
-      cursor:default;transition:all .2s;
-    `;
-    div.innerHTML = `<span>${isFuture ? '' : d.getDate()}</span>${dayTrades.length > 0 ? `<span style="font-size:8px;opacity:.7;">${dayTrades.length}t</span>` : ''}`;
-    cal.appendChild(div);
-  }
+      div.style.cssText = `
+        width:40px;height:40px;display:flex;flex-direction:column;align-items:center;
+        justify-content:center;border-radius:8px;border:0.5px solid ${border};
+        background:${bg};font-size:12px;font-weight:${isToday?'700':'500'};color:${color};
+        ${isToday ? 'outline:2px solid #C9933A;outline-offset:2px;' : ''}
+        cursor:default;transition:all .2s;
+      `;
+      div.innerHTML = isFuture ? '' :
+        `<span>${day.getDate()}</span>${dayTrades.length > 0 ? `<span style="font-size:8px;opacity:.65;">${dayTrades.length}t</span>` : ''}`;
+      cal.appendChild(div);
+    });
+  });
 
   // racha actual (días consecutivos con plan)
   let streak = 0;
   for (let i = 0; i < 60; i++) {
     const d = new Date(); d.setDate(d.getDate() - i);
-    const ds = d.toISOString().slice(0, 10);
+    const ds = localDate(d);
     if (trades.some(t => t.date.slice(0, 10) === ds && t.followPlan === true)) streak++;
     else if (i > 0) break;
   }
