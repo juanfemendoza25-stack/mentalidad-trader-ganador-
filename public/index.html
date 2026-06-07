@@ -263,7 +263,7 @@ select option{background:var(--s2);color:var(--t);}
         </div>
 
         <!-- Calendario 3 semanas -->
-        <div id="streak-cal" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:12px;"></div>
+        <div id="streak-cal" style="display:grid;grid-template-columns:repeat(7,40px);gap:6px;margin-bottom:12px;"></div>
 
         <!-- Leyenda + mensaje -->
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
@@ -918,7 +918,7 @@ function renderStreak() {
     else if (hasNoPlan) { bg = 'var(--neg-bg)'; border = 'var(--neg-t)'; color = 'var(--neg-t)'; }
 
     div.style.cssText = `
-      aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      width:40px;height:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;
       border-radius:8px;border:0.5px solid ${border};background:${bg};
       font-size:12px;font-weight:${isToday?'700':'500'};color:${color};
       ${isToday ? 'outline:1.5px solid #C9933A;outline-offset:1px;' : ''}
