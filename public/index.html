@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psycho Trading · El Trader Sólido</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9933A;--gold-bg:#FAEEDA;--gold-text:#854F0B;
+  --s:#ffffff;--s2:#f5f5f4;--s3:#eeece6;
+  --t:#1a1a18;--t2:#73726c;
+  --b:rgba(0,0,0,0.1);--b2:rgba(0,0,0,0.18);
+  --r:12px;--rm:8px;
+  --pos-bg:#EAF3DE;--pos-t:#3B6D11;--neg-bg:#FCEBEB;--neg-t:#A32D2D;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --s:#1c1c1a;--s2:#242422;--s3:#141412;
+    --t:#f0ede6;--t2:#888780;
+    --b:rgba(255,255,255,0.1);--b2:rgba(255,255,255,0.18);
+    --pos-bg:#173404;--pos-t:#C0DD97;--neg-bg:#501313;--neg-t:#F09595;
+    --gold-bg:#412402;--gold-text:#FAC775;
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--s3);color:var(--t);min-height:100vh;}
+.app{display:flex;flex-direction:column;min-height:100vh;max-width:1100px;margin:0 auto;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:0.5px solid var(--b2);background:var(--s);position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:34px;height:34px;border-radius:var(--rm);background:#C9933A;display:flex;align-items:center;justify-content:center;}
+.logo-icon i{color:#fff;font-size:18px;}
+.logo-name{font-size:15px;font-weight:600;color:var(--t);}
+.logo-sub{font-size:11px;color:var(--t2);}
+.nav{display:flex;gap:3px;flex-wrap:wrap;}
+.nb{display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:var(--rm);border:none;background:transparent;font-size:13px;color:var(--t2);cursor:pointer;transition:all .15s;font-family:inherit;}
+.nb:hover{background:var(--s2);color:var(--t);}
+.nb.active{background:var(--s2);color:#C9933A;font-weight:600;}
+.nb i{font-size:16px;}
+.content{flex:1;padding:20px;background:var(--s3);}
+.sec{display:none;}.sec.active{display:block;}
+
+/* MÉTRICAS */
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:14px;}
+.mc{background:var(--s);border-radius:var(--r);padding:13px 15px;border:0.5px solid var(--b);}
+.ml{font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
+.mv{font-size:21px;font-weight:600;color:var(--t);}
+.mv.pos{color:var(--pos-t)}.mv.neg{color:var(--neg-t)}.mv.gold{color:#C9933A;}
+.ms{font-size:11px;color:var(--t2);margin-top:3px;}
+
+/* CARDS */
+.card{background:var(--s);border:0.5px solid var(--b);border-radius:var(--r);padding:16px 20px;margin-bottom:14px;}
+.ct{font-size:12px;font-weight:600;color:var(--t2);margin-bottom:14px;display:flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:.04em;}
+.ct i{color:#C9933A;font-size:16px;}
+.cw{position:relative;width:100%;height:180px;}
+
+/* MENTALIDAD */
+.ritual-step{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;border-radius:var(--rm);border:0.5px solid var(--b);background:var(--s2);margin-bottom:8px;transition:all .2s;cursor:pointer;user-select:none;}
+.ritual-step:hover{border-color:var(--b2);}
+.ritual-step.done{border-color:#97C459;background:var(--pos-bg);}
+.step-num{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--t2);flex-shrink:0;transition:all .2s;}
+.ritual-step.done .step-num{background:var(--pos-t);border-color:var(--pos-t);color:#fff;}
+.step-title{font-size:13px;font-weight:600;color:var(--t);margin-bottom:3px;}
+.ritual-step.done .step-title{color:var(--pos-t);}
+.step-sub{font-size:12px;color:var(--t2);line-height:1.55;}
+
+.truth-card{padding:13px 15px;border-radius:var(--rm);border:0.5px solid var(--b);background:var(--s2);margin-bottom:8px;}
+.truth-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.truth-num{font-size:10px;font-weight:600;color:#C9933A;text-transform:uppercase;letter-spacing:.06em;}
+.truth-toggle{display:flex;gap:6px;}
+.tt-btn{padding:4px 10px;border-radius:20px;border:0.5px solid var(--b2);background:transparent;font-size:11px;color:var(--t2);cursor:pointer;font-family:inherit;transition:all .15s;}
+.tt-btn:hover{background:var(--s);}
+.tt-btn.active-yes{background:var(--pos-bg);color:var(--pos-t);border-color:#97C459;}
+.tt-btn.active-no{background:var(--neg-bg);color:var(--neg-t);border-color:#F09595;}
+.truth-text{font-size:13px;color:var(--t);line-height:1.55;font-style:italic;margin-bottom:6px;}
+.truth-insight{font-size:11px;color:var(--t2);padding-top:6px;border-top:0.5px solid var(--b);line-height:1.5;}
+
+.yo-soy-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.yo-soy-item{padding:13px 15px;border-radius:var(--rm);border:1.5px solid #C9933A;background:var(--gold-bg);text-align:center;}
+.ysi-label{font-size:10px;color:var(--gold-text);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.ysi-text{font-size:14px;font-weight:600;color:var(--gold-text);}
+
+.fear-tracker{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.fear-item{padding:11px 13px;border-radius:var(--rm);border:0.5px solid var(--b);background:var(--s2);}
+.fear-name{font-size:11px;font-weight:600;color:var(--t);margin-bottom:6px;}
+.fear-bar-track{height:5px;background:var(--s3);border-radius:3px;overflow:hidden;}
+.fear-bar-fill{height:100%;border-radius:3px;background:#C9933A;transition:width .4s;}
+.fear-count{font-size:10px;color:var(--t2);margin-top:3px;}
+
+.streak-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}
+.sd{width:33px;height:33px;border-radius:var(--rm);border:0.5px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--t2);background:var(--s2);}
+.sd.done{background:var(--pos-bg);border-color:#97C459;color:var(--pos-t);}
+.sd.today{border:1.5px solid #C9933A;color:#C9933A;font-weight:600;background:var(--gold-bg);}
+
+/* AI BOX */
+.ai-box{background:var(--s2);border:0.5px solid var(--b2);border-radius:var(--r);padding:16px;margin-top:12px;}
+.ai-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.ai-av{width:26px;height:26px;border-radius:50%;background:var(--gold-bg);display:flex;align-items:center;justify-content:center;}
+.ai-av i{color:#C9933A;font-size:13px;}
+.ai-nm{font-size:11px;font-weight:600;color:var(--gold-text);}
+.ai-text{font-size:13px;color:var(--t);line-height:1.7;}
+.dot-a{display:flex;gap:4px;align-items:center;padding:4px 0;}
+.dot-a span{width:6px;height:6px;border-radius:50%;background:#C9933A;animation:bk 1.2s infinite;display:block;}
+.dot-a span:nth-child(2){animation-delay:.2s}.dot-a span:nth-child(3){animation-delay:.4s}
+@keyframes bk{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-5px);opacity:1}}
+
+/* FORMS */
+.form-g{display:flex;flex-direction:column;gap:5px;margin-bottom:0;}
+.fl{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.04em;}
+input,select,textarea{
+  font-family:inherit;font-size:13px;color:var(--t);background:var(--s2);
+  border:0.5px solid var(--b2);border-radius:var(--rm);padding:8px 10px;width:100%;
+  transition:border-color .15s;outline:none;
+}
+input:focus,select:focus,textarea:focus{border-color:#C9933A;box-shadow:0 0 0 2px rgba(201,147,58,.15);}
+textarea{height:70px;resize:vertical;}
+.trade-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.full{grid-column:1/-1;}
+.chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+.chip{padding:5px 11px;border-radius:20px;font-size:12px;cursor:pointer;border:0.5px solid var(--b2);background:var(--s2);color:var(--t2);transition:all .15s;font-family:inherit;}
+.chip:hover{border-color:var(--b2);background:var(--s);}
+.chip.on{background:var(--gold-bg);color:var(--gold-text);border-color:#EF9F27;font-weight:600;}
+.mood-row{display:flex;gap:6px;}
+.mb{flex:1;padding:8px 4px;text-align:center;border-radius:var(--rm);border:0.5px solid var(--b);background:var(--s2);cursor:pointer;font-size:20px;transition:all .15s;font-family:inherit;}
+.mb:hover{border-color:var(--b2);}
+.mb.on{border:1.5px solid #C9933A;background:var(--gold-bg);}
+
+/* BOTONES */
+.sbtn{width:100%;padding:11px;border-radius:var(--rm);background:#C9933A;color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s;font-family:inherit;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.sbtn:hover{opacity:.88}
+.sbtn-outline{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--rm);border:0.5px solid #C9933A;background:transparent;color:#C9933A;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;}
+.sbtn-outline:hover{background:var(--gold-bg);}
+
+/* TABS */
+.tab-bar{display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap;}
+.tbb{padding:7px 15px;border-radius:var(--rm);border:0.5px solid var(--b);background:var(--s);font-size:12px;color:var(--t2);cursor:pointer;font-family:inherit;transition:all .15s;}
+.tbb:hover{background:var(--s2);}
+.tbb.active{background:#C9933A;color:#fff;border-color:#C9933A;font-weight:600;}
+.tc{display:none;}.tc.active{display:block;}
+
+/* TABLA */
+.tt{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;}
+.tt th{text-align:left;padding:8px 10px;font-size:10px;font-weight:600;color:var(--t2);border-bottom:0.5px solid var(--b2);text-transform:uppercase;letter-spacing:.04em;}
+.tt td{padding:10px;border-bottom:0.5px solid var(--b);color:var(--t);}
+.tt tr:last-child td{border-bottom:none;}
+.tt tr:hover td{background:var(--s2);}
+.tp{color:var(--pos-t);font-weight:600}.tn{color:var(--neg-t);font-weight:600}
+
+/* PLAN */
+.plan-g{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.pt{font-size:10px;font-weight:600;color:#C9933A;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.ri{display:flex;align-items:flex-start;gap:8px;padding:9px 12px;background:var(--s2);border-radius:var(--rm);border:0.5px solid var(--b);margin-bottom:6px;}
+.ri i{color:#C9933A;font-size:14px;margin-top:2px;flex-shrink:0;}
+.re{flex:1;background:transparent;border:none;font-size:12px;color:var(--t);font-family:inherit;resize:none;outline:none;min-height:18px;}
+.arb{display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:var(--rm);border:0.5px dashed var(--b2);background:transparent;color:var(--t2);font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s;}
+.arb:hover{border-color:#C9933A;color:#C9933A;}
+
+.empty{text-align:center;padding:40px 20px;color:var(--t2);}
+.empty i{font-size:40px;color:var(--b2);display:block;margin-bottom:10px;}
+.empty p{font-size:13px;}
+
+.journal-q{font-size:14px;font-weight:500;color:var(--gold-text);padding:14px;background:var(--gold-bg);border-radius:var(--rm);border-left:3px solid #C9933A;margin-bottom:12px;line-height:1.55;}
+.journal-q span{font-size:10px;color:var(--gold-text);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;opacity:.7;}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+@media(max-width:640px){
+  .topbar{flex-direction:column;gap:10px;align-items:flex-start;}
+  .trade-grid,.plan-g,.yo-soy-grid,.fear-tracker,.two-col{grid-template-columns:1fr;}
+  .full{grid-column:1;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon"><i class="ti ti-chart-candle"></i></div>
+      <div>
+        <div class="logo-name">Psycho Trading</div>
+        <div class="logo-sub">XAU/USD · El Trader Sólido · Mark Douglas</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <button class="nb active" onclick="go('dashboard',this)"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
+      <button class="nb" onclick="go('mente',this)"><i class="ti ti-brain"></i> Mentalidad</button>
+      <button class="nb" onclick="go('log',this)"><i class="ti ti-plus"></i> Trade</button>
+      <button class="nb" onclick="go('trades',this)"><i class="ti ti-list"></i> Historial</button>
+      <button class="nb" onclick="go('plan',this)"><i class="ti ti-notebook"></i> Plan</button>
+    </nav>
+  </div>
+
+  <div class="content">
+
+    <!-- ══════════════ DASHBOARD ══════════════ -->
+    <div class="sec active" id="sec-dashboard">
+      <div class="g4">
+        <div class="mc"><div class="ml">Balance</div><div class="mv gold" id="m-bal">$10,000</div><div class="ms">Cuenta actual</div></div>
+        <div class="mc"><div class="ml">P&L Hoy</div><div class="mv" id="m-pnl">$0.00</div><div class="ms" id="m-pnlp">0.00%</div></div>
+        <div class="mc"><div class="ml">Winrate</div><div class="mv gold" id="m-wr">—</div><div class="ms" id="m-wrs">Sin trades</div></div>
+        <div class="mc"><div class="ml">Trades</div><div class="mv" id="m-tot">0</div><div class="ms" id="m-wl">0W / 0L</div></div>
+        <div class="mc"><div class="ml">R promedio</div><div class="mv" id="m-r">—</div><div class="ms">Risk/Reward</div></div>
+        <div class="mc"><div class="ml">Mayor win</div><div class="mv pos" id="m-best">—</div></div>
+        <div class="mc"><div class="ml">Mayor loss</div><div class="mv neg" id="m-worst">—</div></div>
+        <div class="mc"><div class="ml">Disciplina</div><div class="mv gold" id="m-disc">—</div><div class="ms">Plan seguido</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card"><div class="ct"><i class="ti ti-chart-line"></i> Curva de equity</div><div class="cw"><canvas id="eqChart" role="img" aria-label="Curva de equity">Balance histórico</canvas></div></div>
+        <div class="card"><div class="ct"><i class="ti ti-brain"></i> Miedos detectados</div><div class="cw"><canvas id="psChart" role="img" aria-label="Distribución de miedos">Distribución de miedos</canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="ct"><i class="ti ti-flame"></i> Racha de identidad · 21 días</div>
+        <div class="streak-row" id="streak"></div>
+        <div style="font-size:11px;color:var(--t2);" id="streak-lbl">Registra trades respetando tu plan para construir tu racha</div>
+      </div>
+    </div>
+
+    <!-- ══════════════ MENTALIDAD ══════════════ -->
+    <div class="sec" id="sec-mente">
+      <div class="tab-bar">
+        <button class="tbb active" onclick="switchTab('ritual','ment',this)">Ritual diario</button>
+        <button class="tbb" onclick="switchTab('verdades','ment',this)">5 Verdades</button>
+        <button class="tbb" onclick="switchTab('yosoy','ment',this)">Yo Soy</button>
+        <button class="tbb" onclick="switchTab('miedos','ment',this)">Miedos</button>
+      </div>
+
+      <!-- RITUAL -->
+      <div class="tc active" id="tab-ritual">
+        <div class="card">
+          <div class="ct"><i class="ti ti-sun"></i> Ritual de apertura · El Trader Sólido</div>
+          <p style="font-size:12px;color:var(--t2);margin-bottom:16px;">Completa cada paso antes de abrir MT5. El orden importa — no es decoración, es reprogramación.</p>
+
+          <div class="ritual-step" id="rs0" onclick="toggleStep(0)">
+            <div class="step-num" id="rn0">1</div>
+            <div>
+              <div class="step-title">Respiración · 3 minutos</div>
+              <div class="step-sub">Inhala 4s — sostén 4s — exhala 6s. Repite 10 veces. El mercado no puede esperar que estés listo, pero tú sí puedes elegir cuándo entrar.</div>
+            </div>
+          </div>
+          <div class="ritual-step" id="rs1" onclick="toggleStep(1)">
+            <div class="step-num" id="rn1">2</div>
+            <div>
+              <div class="step-title">Primera verdad fundamental</div>
+              <div class="step-sub">"Cualquier cosa puede suceder en el mercado." Este trade específico no predice el siguiente. Es uno de una serie estadística — ni más, ni menos.</div>
+            </div>
+          </div>
+          <div class="ritual-step" id="rs2" onclick="toggleStep(2)">
+            <div class="step-num" id="rn2">3</div>
+            <div>
+              <div class="step-title">Afirmación de identidad</div>
+              <div class="step-sub">"Yo soy un trader disciplinado que opera desde el plan, no desde el miedo. Mi valor como persona no depende del resultado de este trade."</div>
+            </div>
+          </div>
+          <div class="ritual-step" id="rs3" onclick="toggleStep(3)">
+            <div class="step-num" id="rn3">4</div>
+            <div>
+              <div class="step-title">Revisión del trading plan</div>
+              <div class="step-sub">Lee tus reglas de entrada, prohibiciones y gestión de riesgo. No de memoria — léelas físicamente. El inconsciente necesita el ritual, no el recuerdo.</div>
+            </div>
+          </div>
+          <div class="ritual-step" id="rs4" onclick="toggleStep(4)">
+            <div class="step-num" id="rn4">5</div>
+            <div>
+              <div class="step-title">Checklist de mercado</div>
+              <div class="step-sub">¿Cuál es el bias del D1 y H4? ¿Dónde están las zonas clave? ¿Hay noticias de alto impacto hoy? Solo opero si tengo claridad en estas 3 preguntas.</div>
+            </div>
+          </div>
+
+          <div id="ritual-complete" style="display:none;padding:14px;background:var(--pos-bg);border-radius:var(--rm);border:0.5px solid #97C459;text-align:center;margin-top:10px;">
+            <i class="ti ti-check-circle" style="color:var(--pos-t);font-size:24px;"></i>
+            <div style="font-size:13px;font-weight:600;color:var(--pos-t);margin-top:5px;">Ritual completado. Estás listo para operar.</div>
+            <div style="font-size:11px;color:var(--pos-t);opacity:.8;margin-top:2px;">Ahora abre MT5 — desde el plan, no desde el miedo.</div>
+          </div>
+        </div>
+        <div class="ai-box" id="ritual-ai" style="display:none;">
+          <div class="ai-head"><div class="ai-av"><i class="ti ti-robot"></i></div><div class="ai-nm">Reflexión del día · Claude</div></div>
+          <div id="ritual-ai-text"></div>
+        </div>
+      </div>
+
+      <!-- 5 VERDADES -->
+      <div class="tc" id="tab-verdades">
+        <div class="card">
+          <div class="ct"><i class="ti ti-infinity"></i> Las 5 verdades fundamentales · Mark Douglas</div>
+          <p style="font-size:12px;color:var(--t2);margin-bottom:16px;">Evalúa cuánto las has internalizado hoy. No lo que crees intelectualmente — lo que <em>sientes en el pecho</em> al operar.</p>
+
+          <div class="truth-card">
+            <div class="truth-header"><div class="truth-num">Verdad 1</div><div class="truth-toggle"><button class="tt-btn" onclick="setTruth(0,'yes',this)">Lo siento ✓</button><button class="tt-btn" onclick="setTruth(0,'no',this)">Aún no ✗</button></div></div>
+            <div class="truth-text">"Cualquier cosa puede pasar en el mercado."</div>
+            <div class="truth-insight">Si aún temes la pérdida en cada trade, esta verdad no está internalizada. El miedo viene de creer que puedes predecir — y que si pierdes, fallaste.</div>
+          </div>
+          <div class="truth-card">
+            <div class="truth-header"><div class="truth-num">Verdad 2</div><div class="truth-toggle"><button class="tt-btn" onclick="setTruth(1,'yes',this)">Lo siento ✓</button><button class="tt-btn" onclick="setTruth(1,'no',this)">Aún no ✗</button></div></div>
+            <div class="truth-text">"No necesito saber qué va a pasar después para ganar dinero."</div>
+            <div class="truth-insight">El edge funciona en series, no en trades individuales. Buscar certeza en cada trade es la raíz del análisis paralítico y el FOMO.</div>
+          </div>
+          <div class="truth-card">
+            <div class="truth-header"><div class="truth-num">Verdad 3</div><div class="truth-toggle"><button class="tt-btn" onclick="setTruth(2,'yes',this)">Lo siento ✓</button><button class="tt-btn" onclick="setTruth(2,'no',this)">Aún no ✗</button></div></div>
+            <div class="truth-text">"Existe una distribución aleatoria de ganancias y pérdidas para cualquier serie de variables que definen un edge."</div>
+            <div class="truth-insight">No puedes saber de antemano cuál trade de la serie será ganador. Tratar de evitar las pérdidas individuales rompe el edge estadístico.</div>
+          </div>
+          <div class="truth-card">
+            <div class="truth-header"><div class="truth-num">Verdad 4</div><div class="truth-toggle"><button class="tt-btn" onclick="setTruth(3,'yes',this)">Lo siento ✓</button><button class="tt-btn" onclick="setTruth(3,'no',this)">Aún no ✗</button></div></div>
+            <div class="truth-text">"Un edge no es más que una indicación de una probabilidad más alta de que una cosa suceda antes que otra."</div>
+            <div class="truth-insight">El setup perfecto puede fallar. El setup mediocre puede ganar. Tu trabajo es ejecutar el edge, no garantizar el resultado.</div>
+          </div>
+          <div class="truth-card">
+            <div class="truth-header"><div class="truth-num">Verdad 5</div><div class="truth-toggle"><button class="tt-btn" onclick="setTruth(4,'yes',this)">Lo siento ✓</button><button class="tt-btn" onclick="setTruth(4,'no',this)">Aún no ✗</button></div></div>
+            <div class="truth-text">"Cada momento en el mercado es único."</div>
+            <div class="truth-insight">El mercado nunca repite exactamente. Proyectar el pasado (la última pérdida, el último win) contamina tu percepción del trade actual.</div>
+          </div>
+
+          <button class="sbtn" onclick="analyzeTruths()"><i class="ti ti-robot"></i> Analizar mi estado con IA</button>
+        </div>
+        <div class="ai-box" id="truths-ai" style="display:none;">
+          <div class="ai-head"><div class="ai-av"><i class="ti ti-robot"></i></div><div class="ai-nm">Diagnóstico de creencias · Claude</div></div>
+          <div id="truths-ai-text"></div>
+        </div>
+      </div>
+
+      <!-- YO SOY -->
+      <div class="tc" id="tab-yosoy">
+        <div class="card">
+          <div class="ct"><i class="ti ti-user-check"></i> Identidad · El Trader Sólido</div>
+          <p style="font-size:12px;color:var(--t2);margin-bottom:16px;">El problema raíz no es tu sistema. Es que cada trade funciona como un test de tu valor como persona. El trabajo de identidad lo cambia.</p>
+          <div class="yo-soy-grid">
+            <div class="yo-soy-item"><div class="ysi-label">Yo soy</div><div class="ysi-text">un trader probabilístico</div></div>
+            <div class="yo-soy-item"><div class="ysi-label">Yo soy</div><div class="ysi-text">disciplinado sobre el resultado</div></div>
+            <div class="yo-soy-item"><div class="ysi-label">Yo soy</div><div class="ysi-text">independiente de este trade</div></div>
+            <div class="yo-soy-item"><div class="ysi-label">Yo soy</div><div class="ysi-text">el proceso, no el P&L</div></div>
+          </div>
+          <div class="journal-q">
+            <span>Pregunta del día</span>
+            <span id="journal-q-text">¿En qué momento de hoy sentiste que tu valor dependía del resultado de un trade?</span>
+          </div>
+          <div class="form-g">
+            <label class="fl">Tu reflexión</label>
+            <textarea id="journal-answer" style="height:90px;" placeholder="Escribe tu reflexión honesta. Aquí no hay respuestas correctas, solo verdad..."></textarea>
+          </div>
+          <button class="sbtn" onclick="analyzeJournal()"><i class="ti ti-robot"></i> Analizar mi reflexión con IA</button>
+        </div>
+        <div class="ai-box" id="journal-ai" style="display:none;">
+          <div class="ai-head"><div class="ai-av"><i class="ti ti-robot"></i></div><div class="ai-nm">Trabajo de identidad · Claude</div></div>
+          <div id="journal-ai-text"></div>
+        </div>
+      </div>
+
+      <!-- MIEDOS -->
+      <div class="tc" id="tab-miedos">
+        <div class="card">
+          <div class="ct"><i class="ti ti-eye"></i> Los 4 miedos del trader · Mark Douglas</div>
+          <p style="font-size:12px;color:var(--t2);margin-bottom:14px;">Basado en tus trades registrados. El primer paso para disolver un miedo es reconocerlo con precisión.</p>
+          <div class="fear-tracker" id="fear-tracker-grid"></div>
+        </div>
+        <div class="card">
+          <div class="ct"><i class="ti ti-heart-rate-monitor"></i> Zona negativa · Diagnóstico</div>
+          <p style="font-size:13px;color:var(--t);line-height:1.65;margin-bottom:14px;">¿Cuántos trades consecutivos siguieron el plan vs. cuántos fueron impulsados por miedo? El patrón revela si estás en la zona negativa de Mark Douglas — donde las pérdidas pasadas contaminan las decisiones presentes.</p>
+          <div id="zona-diagnostico" style="margin-bottom:14px;"></div>
+          <button class="sbtn" onclick="analyzeFears()"><i class="ti ti-robot"></i> Diagnosticar mis miedos con IA</button>
+        </div>
+        <div class="ai-box" id="fears-ai" style="display:none;">
+          <div class="ai-head"><div class="ai-av"><i class="ti ti-robot"></i></div><div class="ai-nm">Diagnóstico de miedos · Claude</div></div>
+          <div id="fears-ai-text"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ LOG TRADE ══════════════ -->
+    <div class="sec" id="sec-log">
+      <div class="card">
+        <div class="ct"><i class="ti ti-plus-circle"></i> Registrar trade · XAU/USD</div>
+        <div class="tab-bar">
+          <button class="tbb active" onclick="switchTab('pre','log',this)">Pre-trade</button>
+          <button class="tbb" onclick="switchTab('post','log',this)">Post-trade</button>
+        </div>
+        <div class="tc active" id="tab-pre">
+          <div class="trade-grid">
+            <div class="form-g"><label class="fl">Dirección</label><select id="t-dir"><option value="">Seleccionar</option><option value="BUY">BUY (Largo)</option><option value="SELL">SELL (Corto)</option></select></div>
+            <div class="form-g"><label class="fl">Sesión</label><select id="t-ses"><option value="London">London</option><option value="New York">New York</option><option value="Asia">Asia</option><option value="Overlap">Overlap London/NY</option></select></div>
+            <div class="form-g"><label class="fl">Precio entrada</label><input type="number" id="t-ent" placeholder="2320.50" step="0.01"></div>
+            <div class="form-g"><label class="fl">Stop Loss</label><input type="number" id="t-sl" placeholder="2315.00" step="0.01"></div>
+            <div class="form-g"><label class="fl">Take Profit</label><input type="number" id="t-tp" placeholder="2330.00" step="0.01"></div>
+            <div class="form-g"><label class="fl">Lotes</label><input type="number" id="t-lots" placeholder="0.01" step="0.01"></div>
+            <div class="form-g full">
+              <label class="fl">Estado mental PRE-trade</label>
+              <div class="mood-row" id="pre-mood">
+                <button class="mb" onclick="setMood('pre','calm',this)" title="Calmo">😌</button>
+                <button class="mb" onclick="setMood('pre','focused',this)" title="Enfocado">🎯</button>
+                <button class="mb" onclick="setMood('pre','anxious',this)" title="Ansioso">😰</button>
+                <button class="mb" onclick="setMood('pre','fomo',this)" title="FOMO">😤</button>
+                <button class="mb" onclick="setMood('pre','revenge',this)" title="Revenge trading">😠</button>
+              </div>
+            </div>
+            <div class="form-g full">
+              <label class="fl">Miedos identificados antes del trade</label>
+              <div class="chip-row" id="fear-chips">
+                <button class="chip" onclick="toggleFear(this)">Miedo a perder</button>
+                <button class="chip" onclick="toggleFear(this)">Miedo a dejar pasar</button>
+                <button class="chip" onclick="toggleFear(this)">Miedo a estar equivocado</button>
+                <button class="chip" onclick="toggleFear(this)">Miedo a dejar dinero en mesa</button>
+                <button class="chip" onclick="toggleFear(this)">Ninguno</button>
+              </div>
+            </div>
+            <div class="form-g full"><label class="fl">Setup / razón de entrada</label><textarea id="t-reason" placeholder="Describe la estructura de mercado, confluencias y por qué este trade tiene edge..."></textarea></div>
+            <div class="form-g full">
+              <label class="fl">¿Seguiste el trading plan?</label>
+              <div class="chip-row">
+                <button class="chip" id="py" onclick="setPlan(true,this)">Sí, completamente</button>
+                <button class="chip" id="pp" onclick="setPlan('partial',this)">Parcialmente</button>
+                <button class="chip" id="pn" onclick="setPlan(false,this)">No seguí el plan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tc" id="tab-post">
+          <div class="trade-grid">
+            <div class="form-g"><label class="fl">Resultado</label><select id="t-res"><option value="">Seleccionar</option><option value="win">Win ✓</option><option value="loss">Loss ✗</option><option value="be">Break Even</option></select></div>
+            <div class="form-g"><label class="fl">P&L ($)</label><input type="number" id="t-pnl" placeholder="Ej: 45.50 o -20.00" step="0.01"></div>
+            <div class="form-g full">
+              <label class="fl">Estado mental POST-trade</label>
+              <div class="mood-row" id="post-mood">
+                <button class="mb" onclick="setMood('post','calm',this)" title="Calmo">😌</button>
+                <button class="mb" onclick="setMood('post','satisfied',this)" title="Satisfecho">😊</button>
+                <button class="mb" onclick="setMood('post','frustrated',this)" title="Frustrado">😤</button>
+                <button class="mb" onclick="setMood('post','anxious',this)" title="Ansioso">😰</button>
+                <button class="mb" onclick="setMood('post','revenge',this)" title="Con ganas de revenge">😠</button>
+              </div>
+            </div>
+            <div class="form-g full"><label class="fl">Reflexión post-trade</label><textarea id="t-ref" placeholder="¿Operaste desde el plan o desde el miedo? ¿Qué reveló este trade sobre tu identidad como trader?"></textarea></div>
+          </div>
+        </div>
+        <button class="sbtn" onclick="saveTrade()"><i class="ti ti-device-floppy"></i> Guardar trade y analizar</button>
+      </div>
+      <div class="ai-box" id="trade-ai" style="display:none;">
+        <div class="ai-head"><div class="ai-av"><i class="ti ti-robot"></i></div><div class="ai-nm">Análisis psicológico · Claude · Mark Douglas</div></div>
+        <div id="trade-ai-text"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ HISTORIAL ══════════════ -->
+    <div class="sec" id="sec-trades">
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="padding:14px 20px;border-bottom:0.5px solid var(--b);display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:12px;font-weight:600;color:var(--t2);display:flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:.04em;"><i class="ti ti-list" style="color:#C9933A;font-size:15px;"></i>Historial de trades</span>
+          <button onclick="clearTrades()" style="font-size:11px;color:var(--neg-t);background:transparent;border:none;cursor:pointer;font-family:inherit;">Borrar todo</button>
+        </div>
+        <div id="trades-body"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ TRADING PLAN ══════════════ -->
+    <div class="sec" id="sec-plan">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div class="ct" style="margin:0;"><i class="ti ti-notebook"></i> Mi Trading Plan · XAU/USD</div>
+          <button class="sbtn-outline" onclick="analyzePlan()"><i class="ti ti-robot"></i> Analizar con IA</button>
+        </div>
+        <div class="plan-g">
+          <div>
+            <div class="pt">Entradas permitidas</div>
+            <div id="pl-ent">
+              <div class="ri"><i class="ti ti-check"></i><textarea class="re" rows="1">Estructura CHoCH + BOS confirmado en H1</textarea></div>
+              <div class="ri"><i class="ti ti-check"></i><textarea class="re" rows="1">Liquidez barrida + FVG en M15</textarea></div>
+              <div class="ri"><i class="ti ti-check"></i><textarea class="re" rows="1">Solo sesiones London y New York</textarea></div>
+            </div>
+            <button class="arb" onclick="addRule('pl-ent')"><i class="ti ti-plus"></i> Agregar regla</button>
+          </div>
+          <div>
+            <div class="pt">Prohibiciones absolutas</div>
+            <div id="pl-proh">
+              <div class="ri"><i class="ti ti-x" style="color:var(--neg-t);"></i><textarea class="re" rows="1">No tradear en noticias de alto impacto (NFP, CPI, Fed)</textarea></div>
+              <div class="ri"><i class="ti ti-x" style="color:var(--neg-t);"></i><textarea class="re" rows="1">No mover SL en contra de la posición</textarea></div>
+              <div class="ri"><i class="ti ti-x" style="color:var(--neg-t);"></i><textarea class="re" rows="1">No revenge trading después de una pérdida</textarea></div>
+            </div>
+            <button class="arb" onclick="addRule('pl-proh')"><i class="ti ti-plus"></i> Agregar regla</button>
+          </div>
+          <div>
+            <div class="pt">Gestión de riesgo</div>
+            <div id="pl-risk">
+              <div class="ri"><i class="ti ti-shield"></i><textarea class="re" rows="1">Riesgo máximo: 1% de la cuenta por trade</textarea></div>
+              <div class="ri"><i class="ti ti-shield"></i><textarea class="re" rows="1">Máximo 3 trades por día</textarea></div>
+              <div class="ri"><i class="ti ti-shield"></i><textarea class="re" rows="1">Stop del día: -3% de la cuenta → cerrar MT5</textarea></div>
+            </div>
+            <button class="arb" onclick="addRule('pl-risk')"><i class="ti ti-plus"></i> Agregar regla</button>
+          </div>
+          <div>
+            <div class="pt">Checklist pre-sesión</div>
+            <div id="pl-check">
+              <div class="ri"><i class="ti ti-checkbox"></i><textarea class="re" rows="1">Revisé bias del D1 y H4</textarea></div>
+              <div class="ri"><i class="ti ti-checkbox"></i><textarea class="re" rows="1">Marqué zonas de interés y liquidez</textarea></div>
+              <div class="ri"><i class="ti ti-checkbox"></i><textarea class="re" rows="1">Revisé calendario económico</textarea></div>
+              <div class="ri"><i class="ti ti-checkbox"></i><textarea class="re" rows="1">Estado mental: apto para operar</textarea></div>
+            </div>
+            <button class="arb" onclick="addRule('pl-check')"><i class="ti ti-plus"></i> Agregar ítem</button>
+          </div>
+        </div>
+      </div>
+      <div class="ai-box" id="plan-ai" style="display:none;">
+        <div class="ai-head"><div class="ai-av"><i class="ti ti-robot"></i></div><div class="ai-nm">Análisis del plan · Claude · Mark Douglas</div></div>
+        <div id="plan-ai-text"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ── Estado global ──
+let trades = JSON.parse(localStorage.getItem('pt_trades') || '[]');
+let moods = { pre: '', post: '' };
+let fears = [];
+let followPlan = null;
+let stepsCompleted = JSON.parse(localStorage.getItem('pt_steps') || '[]');
+let truthStates = JSON.parse(localStorage.getItem('pt_truths') || '{}');
+let eqChart = null, psChart = null;
+const INIT = 10000;
+
+const JOURNAL_QS = [
+  '¿En qué momento de hoy sentiste que tu valor dependía del resultado de un trade?',
+  '¿Cuándo hoy operaste desde el miedo en lugar del plan? ¿Qué desencadenó ese miedo?',
+  '¿Qué diferencia hay entre tú — el trader — y el resultado de tus trades?',
+  '¿Cómo reaccionaste a tu última pérdida? ¿Fue la reacción de un trader sólido?',
+  '¿Qué creencias sobre ti mismo se activaron en tu último trade perdedor?',
+  '¿Operarías diferente si nadie viera tus resultados? ¿Por qué?',
+  '¿Cuándo aceptas que una pérdida es simplemente parte del edge — no un fracaso personal?'
+];
+
+// ── Navegación ──
+function go(name, btn) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'trades') renderTrades();
+  if (name === 'mente') renderMente();
+}
+
+function switchTab(tab, group, btn) {
+  const bar = btn.parentElement;
+  bar.querySelectorAll('.tbb').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (group === 'ment') {
+    document.querySelectorAll('#sec-mente .tc').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (tab === 'miedos') renderFearTracker();
+  } else {
+    document.querySelectorAll('#sec-log .tc').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+  }
+}
+
+// ── Ritual ──
+function toggleStep(i) {
+  const idx = stepsCompleted.indexOf(i);
+  if (idx > -1) stepsCompleted.splice(idx, 1);
+  else stepsCompleted.push(i);
+  localStorage.setItem('pt_steps', JSON.stringify(stepsCompleted));
+  const el = document.getElementById('rs' + i);
+  const num = document.getElementById('rn' + i);
+  if (stepsCompleted.includes(i)) {
+    el.classList.add('done');
+    num.innerHTML = '<i class="ti ti-check"></i>';
+  } else {
+    el.classList.remove('done');
+    num.textContent = (i + 1);
+  }
+  const allDone = stepsCompleted.length >= 5;
+  document.getElementById('ritual-complete').style.display = allDone ? 'block' : 'none';
+  if (allDone && stepsCompleted.length === 5) triggerRitualAI();
+}
+
+async function triggerRitualAI() {
+  const ai = document.getElementById('ritual-ai');
+  ai.style.display = 'block';
+  document.getElementById('ritual-ai-text').innerHTML = loading();
+  const today = new Date().toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' });
+  const prompt = `Eres un coach de psicología del trading basado en Mark Douglas. El trader acaba de completar su ritual de apertura completo (respiración + verdad fundamental + afirmación de identidad + revisión de plan + checklist de mercado). Es ${today}. Escríbele una reflexión motivadora pero honesta — no condescendiente — de máx 3 párrafos en español. Recuérdale que el ritual no garantiza resultados, sino que lo prepara para operar desde el trader sólido que ya es, no desde el miedo. Cierra con una pregunta concreta que lo lleve al mercado con la mente correcta.`;
+  await callAI(prompt, 'ritual-ai-text');
+}
+
+// ── 5 Verdades ──
+function setTruth(i, val, btn) {
+  truthStates[i] = val;
+  localStorage.setItem('pt_truths', JSON.stringify(truthStates));
+  const row = btn.closest('.truth-toggle');
+  row.querySelectorAll('.tt-btn').forEach(b => { b.classList.remove('active-yes', 'active-no'); });
+  btn.classList.add(val === 'yes' ? 'active-yes' : 'active-no');
+}
+
+async function analyzeTruths() {
+  const box = document.getElementById('truths-ai');
+  box.style.display = 'block';
+  document.getElementById('truths-ai-text').innerHTML = loading();
+  const labels = ['Cualquier cosa puede pasar', 'No necesito saber qué sigue', 'Distribución aleatoria de resultados', 'Edge = probabilidad, no certeza', 'Cada momento es único'];
+  const status = labels.map((l, i) => `Verdad ${i+1} (${l}): ${truthStates[i] || 'sin evaluar'}`).join('; ');
+  const prompt = `Eres un coach de psicología del trading basado en Mark Douglas (Trading in the Zone). El trader evaluó cuánto ha internalizado las 5 verdades fundamentales: ${status}. Analiza en español (máx 4 párrafos): qué patrón ves en las verdades que aún no ha internalizado, qué miedos del trader están probablemente activos como consecuencia, y qué ejercicio concreto podría hacer esta semana para trabajar las verdades que marcó como "Aún no". Sé directo, honesto y socrático — sin bullet points.`;
+  await callAI(prompt, 'truths-ai-text');
+}
+
+// ── Yo Soy / Diario ──
+async function analyzeJournal() {
+  const ans = document.getElementById('journal-answer').value.trim();
+  if (!ans) { alert('Escribe tu reflexión primero.'); return; }
+  const box = document.getElementById('journal-ai');
+  box.style.display = 'block';
+  document.getElementById('journal-ai-text').innerHTML = loading();
+  const q = document.getElementById('journal-q-text').textContent;
+  const prompt = `Eres un coach de psicología del trading basado en Mark Douglas. El trader respondió a esta pregunta de identidad: "${q}". Su respuesta fue: "${ans}". Analiza en español (máx 4 párrafos): qué revela esta reflexión sobre su identidad como trader, si sigue operando los trades como tests de su valor personal, qué creencia limitante subyacente aparece, y hazle UNA pregunta socrática que lo lleve más profundo — la más incómoda que puedas hacer. No valides vacíamente, sé honesto.`;
+  await callAI(prompt, 'journal-ai-text');
+}
+
+// ── Miedos ──
+function renderFearTracker() {
+  const FEARS = ['Miedo a perder', 'Miedo a dejar pasar', 'Miedo a estar equivocado', 'Miedo a dejar dinero en mesa'];
+  const counts = {}; FEARS.forEach(f => counts[f] = 0);
+  trades.forEach(t => (t.fears || []).forEach(f => { if (counts[f] !== undefined) counts[f]++; }));
+  const max = Math.max(...Object.values(counts), 1);
+  document.getElementById('fear-tracker-grid').innerHTML = FEARS.map(f =>
+    `<div class="fear-item"><div class="fear-name">${f}</div><div class="fear-bar-track"><div class="fear-bar-fill" style="width:${Math.round((counts[f]/max)*100)}%"></div></div><div class="fear-count">${counts[f]} veces detectado</div></div>`
+  ).join('');
+
+  const last10 = trades.slice(0, 10);
+  const zd = document.getElementById('zona-diagnostico');
+  if (!last10.length) { zd.innerHTML = '<div style="font-size:12px;color:var(--t2);">Sin trades registrados aún.</div>'; return; }
+  const noplan = last10.filter(t => t.followPlan === false).length;
+  const planok = last10.filter(t => t.followPlan === true).length;
+  const pct = Math.round((noplan / last10.length) * 100);
+  const zona = pct >= 50 ? '⚠️ Zona negativa detectada' : '✓ Fuera de zona negativa';
+  const color = pct >= 50 ? 'var(--neg-t)' : 'var(--pos-t)';
+  zd.innerHTML = `<div style="font-size:13px;font-weight:600;color:${color};margin-bottom:6px;">${zona}</div><div style="font-size:12px;color:var(--t2);">Últimos ${last10.length} trades: ${planok} con plan · ${noplan} sin plan (${pct}% sin disciplina)</div>`;
+}
+
+async function analyzeFears() {
+  const FEARS = ['Miedo a perder', 'Miedo a dejar pasar', 'Miedo a estar equivocado', 'Miedo a dejar dinero en mesa'];
+  const counts = {}; FEARS.forEach(f => counts[f] = 0);
+  trades.forEach(t => (t.fears || []).forEach(f => { if (counts[f] !== undefined) counts[f]++; }));
+  const box = document.getElementById('fears-ai');
+  box.style.display = 'block';
+  document.getElementById('fears-ai-text').innerHTML = loading();
+  const fearSummary = FEARS.map(f => `${f}: ${counts[f]} veces`).join('; ');
+  const planRate = trades.length ? Math.round((trades.filter(t => t.followPlan === true).length / trades.length) * 100) : 0;
+  const prompt = `Eres un coach de psicología del trading basado en Mark Douglas. El trader tiene estos datos de miedos detectados: ${fearSummary}. Tasa de disciplina: ${planRate}%. Total trades: ${trades.length}. Analiza en español (máx 4 párrafos): cuál es su miedo dominante, cómo ese miedo distorsiona su percepción del mercado según Douglas, si hay señales de zona negativa (pérdidas pasadas contaminando decisiones presentes), y qué ejercicio del casino de Douglas le recomendarías para comenzar a disolver ese miedo. Directo y socrático.`;
+  await callAI(prompt, 'fears-ai-text');
+}
+
+// ── Registro de trade ──
+function setMood(type, mood, btn) {
+  moods[type] = mood;
+  const c = document.getElementById(type + '-mood');
+  c.querySelectorAll('.mb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function toggleFear(el) {
+  el.classList.toggle('on');
+  const t = el.textContent.trim();
+  if (el.classList.contains('on')) { if (!fears.includes(t)) fears.push(t); }
+  else fears = fears.filter(f => f !== t);
+}
+function setPlan(v, btn) {
+  followPlan = v;
+  ['py', 'pp', 'pn'].forEach(id => document.getElementById(id).classList.remove('on'));
+  btn.classList.add('on');
+}
+
+async function saveTrade() {
+  const entry = parseFloat(document.getElementById('t-ent').value);
+  const sl = parseFloat(document.getElementById('t-sl').value);
+  const tp = parseFloat(document.getElementById('t-tp').value);
+  const pnl = parseFloat(document.getElementById('t-pnl').value) || 0;
+  const dir = document.getElementById('t-dir').value;
+  if (!dir || !entry) { alert('Completa al menos dirección y precio de entrada.'); return; }
+  let rr = 0;
+  if (entry && sl && tp) { const risk = Math.abs(entry - sl); const reward = Math.abs(tp - entry); rr = risk > 0 ? (reward / risk).toFixed(2) : 0; }
+  const trade = {
+    id: Date.now(), date: new Date().toISOString(),
+    dir, entry, sl, tp,
+    lots: parseFloat(document.getElementById('t-lots').value) || 0.01,
+    session: document.getElementById('t-ses').value, pnl,
+    result: document.getElementById('t-res').value || (pnl > 0 ? 'win' : pnl < 0 ? 'loss' : 'be'),
+    rr, reason: document.getElementById('t-reason').value,
+    reflection: document.getElementById('t-ref').value,
+    preMood: moods.pre, postMood: moods.post,
+    fears: [...fears], followPlan
+  };
+  trades.unshift(trade);
+  localStorage.setItem('pt_trades', JSON.stringify(trades));
+
+  const ai = document.getElementById('trade-ai');
+  ai.style.display = 'block';
+  document.getElementById('trade-ai-text').innerHTML = loading();
+  ai.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  const prompt = `Eres un coach de psicología del trading basado en Mark Douglas (Trading in the Zone / El Trader Disciplinado). Analiza este trade de XAU/USD de un trader en transformación de identidad — su problema raíz es que los trades funcionaban como tests de su valor personal:
+
+TRADE: ${trade.dir} | Entrada: ${trade.entry} | SL: ${trade.sl} | TP: ${trade.tp} | R/R: ${trade.rr} | Resultado: ${trade.result} | P&L: $${trade.pnl}
+Estado mental pre: ${trade.preMood || 'no especificado'} | Estado mental post: ${trade.postMood || 'no especificado'}
+Miedos identificados: ${trade.fears.length ? trade.fears.join(', ') : 'ninguno'}
+Siguió el plan: ${trade.followPlan === true ? 'Sí' : trade.followPlan === 'partial' ? 'Parcialmente' : trade.followPlan === false ? 'No' : 'No especificado'}
+Setup: ${trade.reason || 'no especificado'}
+Reflexión: ${trade.reflection || 'ninguna'}
+
+Responde en español, máx 4 párrafos. Analiza: (1) qué revela este trade sobre si sigue operando desde su identidad frágil o desde el trader sólido, (2) si operó desde el plan o desde alguno de los 4 miedos de Douglas, (3) qué patrón de creencia subyace — especialmente si el resultado afectó su autopercepción, (4) una pregunta socrática incómoda que lo lleve más profundo. Sin bullet points. Honesto y directo.`;
+  await callAI(prompt, 'trade-ai-text');
+}
+
+// ── Trading Plan ──
+function addRule(listId) {
+  const l = document.getElementById(listId);
+  const d = document.createElement('div'); d.className = 'ri';
+  d.innerHTML = '<i class="ti ti-check"></i><textarea class="re" rows="1" placeholder="Escribe la regla..."></textarea>';
+  l.appendChild(d); d.querySelector('textarea').focus();
+}
+
+async function analyzePlan() {
+  const ent = [...document.querySelectorAll('#pl-ent .re')].map(t => t.value).join('; ');
+  const proh = [...document.querySelectorAll('#pl-proh .re')].map(t => t.value).join('; ');
+  const risk = [...document.querySelectorAll('#pl-risk .re')].map(t => t.value).join('; ');
+  const chk = [...document.querySelectorAll('#pl-check .re')].map(t => t.value).join('; ');
+  const box = document.getElementById('plan-ai');
+  box.style.display = 'block';
+  document.getElementById('plan-ai-text').innerHTML = loading();
+  const prompt = `Eres un coach de psicología del trading basado en Mark Douglas. Analiza este trading plan para XAU/USD: ENTRADAS: ${ent} | PROHIBICIONES: ${proh} | RIESGO: ${risk} | CHECKLIST: ${chk}. Responde en español, máx 5 párrafos: (1) fortalezas psicológicas del plan, (2) vulnerabilidades que podrían activar los 4 miedos del trader, (3) qué falta para proteger la identidad del trader sólido contra la zona negativa, (4) sugerencia concreta de mejora. Sin bullet points, directo y honesto.`;
+  await callAI(prompt, 'plan-ai-text');
+}
+
+// ── Dashboard ──
+function renderDashboard() {
+  const today = new Date().toISOString().slice(0, 10);
+  const todayT = trades.filter(t => t.date.slice(0, 10) === today);
+  const pnlToday = todayT.reduce((s, t) => s + (t.pnl || 0), 0);
+  const allPnl = trades.reduce((s, t) => s + (t.pnl || 0), 0);
+  const bal = INIT + allPnl;
+  const wins = trades.filter(t => t.result === 'win').length;
+  const losses = trades.filter(t => t.result === 'loss').length;
+  const wr = trades.length ? Math.round((wins / trades.length) * 100) : null;
+  const pnls = trades.map(t => t.pnl || 0);
+  const best = pnls.length ? Math.max(...pnls) : null;
+  const worst = pnls.length ? Math.min(...pnls) : null;
+  const rrs = trades.filter(t => t.rr);
+  const avgR = rrs.length ? (rrs.reduce((s, t) => s + parseFloat(t.rr), 0) / rrs.length).toFixed(2) : null;
+  const disc = trades.length ? Math.round((trades.filter(t => t.followPlan === true).length / trades.length) * 100) : null;
+
+  document.getElementById('m-bal').textContent = '$' + bal.toFixed(2);
+  const pe = document.getElementById('m-pnl');
+  pe.textContent = (pnlToday >= 0 ? '+' : '') + '$' + pnlToday.toFixed(2);
+  pe.className = 'mv ' + (pnlToday > 0 ? 'pos' : pnlToday < 0 ? 'neg' : '');
+  document.getElementById('m-pnlp').textContent = (pnlToday >= 0 ? '+' : '') + ((pnlToday / INIT) * 100).toFixed(2) + '%';
+  document.getElementById('m-wr').textContent = wr !== null ? wr + '%' : '—';
+  document.getElementById('m-wrs').textContent = wr !== null ? (wr >= 50 ? 'Encima del 50%' : 'Bajo el 50%') : 'Sin trades';
+  document.getElementById('m-tot').textContent = trades.length;
+  document.getElementById('m-wl').textContent = wins + 'W / ' + losses + 'L';
+  document.getElementById('m-r').textContent = avgR !== null ? avgR + 'R' : '—';
+  document.getElementById('m-best').textContent = best !== null ? '+$' + best.toFixed(2) : '—';
+  document.getElementById('m-worst').textContent = worst !== null ? '$' + worst.toFixed(2) : '—';
+  document.getElementById('m-disc').textContent = disc !== null ? disc + '%' : '—';
+
+  renderEquity(bal);
+  renderPsych();
+  renderStreak();
+}
+
+function renderEquity(bal) {
+  const ctx = document.getElementById('eqChart').getContext('2d');
+  if (eqChart) eqChart.destroy();
+  let running = INIT;
+  const pts = [INIT]; const lbls = ['Inicio'];
+  [...trades].reverse().forEach((t, i) => { running += (t.pnl || 0); pts.push(parseFloat(running.toFixed(2))); lbls.push('T' + (i + 1)); });
+  const isPos = pts[pts.length - 1] >= INIT;
+  eqChart = new Chart(ctx, { type: 'line', data: { labels: lbls, datasets: [{ data: pts, borderColor: isPos ? '#3B6D11' : '#A32D2D', backgroundColor: isPos ? 'rgba(59,109,17,0.08)' : 'rgba(163,45,45,0.08)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: pts.length <= 2 ? 4 : 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { font: { size: 10 }, color: '#888780' }, grid: { display: false } }, y: { ticks: { font: { size: 10 }, color: '#888780', callback: v => '$' + v }, grid: { color: 'rgba(136,135,128,0.1)' } } } } });
+}
+
+function renderPsych() {
+  const ctx = document.getElementById('psChart').getContext('2d');
+  if (psChart) psChart.destroy();
+  const fc = {};
+  trades.forEach(t => (t.fears || []).forEach(f => { fc[f] = (fc[f] || 0) + 1; }));
+  const lbls = Object.keys(fc); const dt = Object.values(fc);
+  if (!lbls.length) { lbls.push('Sin datos'); dt.push(1); }
+  psChart = new Chart(ctx, { type: 'doughnut', data: { labels: lbls, datasets: [{ data: dt, backgroundColor: ['#C9933A', '#B5D4F4', '#F7C1C1', '#9FE1CB', '#D4537E', '#888780'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 8, color: '#888780', padding: 6 } } } } });
+}
+
+function renderStreak() {
+  const c = document.getElementById('streak'); c.innerHTML = '';
+  const today = new Date().toISOString().slice(0, 10);
+  for (let i = 20; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const ds = d.toISOString().slice(0, 10);
+    const good = trades.some(t => t.date.slice(0, 10) === ds && t.followPlan === true);
+    const isT = ds === today;
+    const div = document.createElement('div');
+    div.className = 'sd' + (good ? ' done' : '') + (isT ? ' today' : '');
+    div.textContent = d.getDate(); div.title = ds;
+    c.appendChild(div);
+  }
+  let s = 0;
+  for (let i = 0; i < 30; i++) { const d = new Date(); d.setDate(d.getDate() - i); const ds = d.toISOString().slice(0, 10); if (trades.some(t => t.date.slice(0, 10) === ds && t.followPlan === true)) s++; else if (i > 0) break; }
+  document.getElementById('streak-lbl').textContent = s > 0 ? `Racha: ${s} día(s) siguiendo el plan. ¡Sostenla!` : 'Registra trades respetando tu plan para construir tu racha';
+}
+
+// ── Historial ──
+function renderTrades() {
+  const body = document.getElementById('trades-body');
+  if (!trades.length) { body.innerHTML = '<div class="empty"><i class="ti ti-chart-candle"></i><p>Sin trades registrados aún.<br>Ve a <strong>Trade</strong> para comenzar.</p></div>'; return; }
+  const moodMap = { calm: '😌', focused: '🎯', anxious: '😰', fomo: '😤', revenge: '😠', satisfied: '😊', frustrated: '😤' };
+  let html = '<table class="tt"><thead><tr><th>Fecha</th><th>Dir</th><th>Entrada</th><th>R/R</th><th>P&L</th><th>Plan</th><th>Mood</th></tr></thead><tbody>';
+  trades.slice(0, 50).forEach(t => {
+    const date = new Date(t.date).toLocaleDateString('es', { day: '2-digit', month: '2-digit' });
+    const pc = t.pnl > 0 ? 'tp' : t.pnl < 0 ? 'tn' : '';
+    const ps = (t.pnl > 0 ? '+' : '') + '$' + t.pnl.toFixed(2);
+    const pi = t.followPlan === true ? '✓' : t.followPlan === 'partial' ? '~' : '✗';
+    const pk = t.followPlan === true ? 'var(--pos-t)' : t.followPlan === false ? 'var(--neg-t)' : '#854F0B';
+    html += `<tr><td style="color:var(--t2);font-size:11px;">${date}</td><td style="font-weight:600;color:${t.dir==='BUY'?'var(--pos-t)':'var(--neg-t)'};font-size:12px;">${t.dir}</td><td style="font-size:11px;">${t.entry || '—'}</td><td style="font-size:11px;">${t.rr ? t.rr + 'R' : '—'}</td><td class="${pc}" style="font-size:12px;">${ps}</td><td style="color:${pk};font-size:15px;">${pi}</td><td style="font-size:15px;">${moodMap[t.preMood] || '—'} → ${moodMap[t.postMood] || '—'}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  body.innerHTML = html;
+}
+
+function clearTrades() {
+  if (!confirm('¿Borrar todo el historial? Esta acción no se puede deshacer.')) return;
+  trades = []; localStorage.setItem('pt_trades', JSON.stringify(trades));
+  renderTrades(); renderDashboard();
+}
+
+// ── Mentalidad init ──
+function renderMente() {
+  document.getElementById('journal-q-text').textContent = JOURNAL_QS[new Date().getDay() % JOURNAL_QS.length];
+  stepsCompleted.forEach(i => {
+    const el = document.getElementById('rs' + i);
+    const num = document.getElementById('rn' + i);
+    if (el) { el.classList.add('done'); num.innerHTML = '<i class="ti ti-check"></i>'; }
+  });
+  document.getElementById('ritual-complete').style.display = stepsCompleted.length >= 5 ? 'block' : 'none';
+  Object.entries(truthStates).forEach(([i, val]) => {
+    const card = document.querySelectorAll('.truth-card')[parseInt(i)];
+    if (card) { card.querySelectorAll('.tt-btn').forEach(b => b.classList.remove('active-yes', 'active-no')); const btn = card.querySelector(val === 'yes' ? '.tt-btn:first-child' : '.tt-btn:last-child'); if (btn) btn.classList.add(val === 'yes' ? 'active-yes' : 'active-no'); }
+  });
+}
+
+// ── Claude API — llama al backend proxy ──
+function loading() {
+  return '<div class="dot-a"><span></span><span></span><span></span></div>';
+}
+
+async function callAI(prompt, targetId) {
+  try {
+    const r = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    const t = d.text || 'Sin respuesta.';
+    document.getElementById(targetId).innerHTML = `<div class="ai-text">${t.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>')}</div>`;
+  } catch (e) {
+    document.getElementById(targetId).innerHTML = `<div class="ai-text" style="color:var(--neg-t)">Error al conectar con la IA: ${e.message}</div>`;
+  }
+}
+
+// ── Init ──
+renderDashboard();
+</script>
+</body>
+</html>
