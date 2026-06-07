@@ -1,0 +1,1 @@
+# mentalidad-trader-ganador-
