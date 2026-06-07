@@ -157,6 +157,29 @@ textarea{height:70px;resize:vertical;}
 
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal{background:var(--s);border:0.5px solid var(--b2);border-radius:var(--r);padding:24px;width:100%;max-width:420px;box-shadow:0 24px 60px rgba(0,0,0,.5);}
+.modal-title{font-size:14px;font-weight:600;color:var(--t);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.modal-title i{color:#C9933A;}
+.acc-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rm);border:0.5px solid var(--b);background:var(--s2);margin-bottom:8px;cursor:pointer;transition:all .15s;}
+.acc-item:hover{border-color:var(--b2);}
+.acc-item.active{border-color:#C9933A;background:var(--gold-bg);}
+.acc-dot{width:8px;height:8px;border-radius:50%;background:var(--b2);flex-shrink:0;}
+.acc-item.active .acc-dot{background:#C9933A;}
+.acc-name{flex:1;font-size:13px;font-weight:500;color:var(--t);}
+.acc-bal{font-size:12px;color:var(--t2);}
+.acc-actions{display:flex;gap:4px;}
+.acc-btn{padding:4px 6px;border-radius:6px;border:none;background:transparent;color:var(--t2);cursor:pointer;font-size:13px;transition:all .15s;}
+.acc-btn:hover{background:var(--s3);color:var(--t);}
+.acc-btn.del:hover{color:var(--neg-t);}
+
+/* SELECTOR cuenta topbar */
+.acc-selector{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:var(--rm);background:var(--s2);border:0.5px solid var(--b2);cursor:pointer;transition:all .15s;min-width:120px;}
+.acc-selector:hover{border-color:#C9933A;}
+.acc-selector-name{font-size:12px;font-weight:600;color:var(--t);flex:1;}
+.acc-selector-bal{font-size:10px;color:#C9933A;font-weight:600;}
+
 /* scrollbar oscuro */
 ::-webkit-scrollbar{width:6px;height:6px;}
 ::-webkit-scrollbar-track{background:var(--s3);}
@@ -192,9 +215,19 @@ select option{background:var(--s2);color:var(--t);}
         <div class="logo-sub">XAU/USD · El Trader Sólido · Mark Douglas</div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:var(--rm);background:var(--s2);border:0.5px solid var(--b);">
-      <span id="db-dot" style="width:7px;height:7px;border-radius:50%;background:#888780;display:inline-block;transition:background .3s;"></span>
-      <span id="db-lbl" style="font-size:11px;color:var(--t2);">Local</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="acc-selector" onclick="openAccModal()">
+        <i class="ti ti-wallet" style="color:#C9933A;font-size:15px;"></i>
+        <div>
+          <div class="acc-selector-name" id="topbar-acc-name">Cuenta principal</div>
+          <div class="acc-selector-bal" id="topbar-acc-bal">$10,000</div>
+        </div>
+        <i class="ti ti-chevron-down" style="font-size:13px;color:var(--t2);"></i>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:var(--rm);background:var(--s2);border:0.5px solid var(--b);">
+        <span id="db-dot" style="width:7px;height:7px;border-radius:50%;background:#888780;display:inline-block;transition:background .3s;"></span>
+        <span id="db-lbl" style="font-size:11px;color:var(--t2);">Local</span>
+      </div>
     </div>
     <nav class="nav">
       <button class="nb active" onclick="go('dashboard',this)"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
@@ -571,27 +604,167 @@ select option{background:var(--s2);color:var(--t);}
   </div>
 </div>
 
+<!-- ══════════════ MODAL CUENTAS ══════════════ -->
+<div class="modal-overlay" id="acc-modal" style="display:none;" onclick="closeAccModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title"><i class="ti ti-wallet"></i> Mis cuentas de trading</div>
+
+    <div id="acc-list"></div>
+
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button class="sbtn" style="margin:0;flex:1;" onclick="createAccount()">
+        <i class="ti ti-plus"></i> Nueva cuenta
+      </button>
+      <button onclick="closeAccModal()" style="padding:11px 16px;border-radius:var(--rm);border:0.5px solid var(--b2);background:transparent;color:var(--t2);cursor:pointer;font-family:inherit;font-size:13px;">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-// ── Estado global ──
-let trades = JSON.parse(localStorage.getItem('pt_trades') || '[]');
-let dbMode = false; // true cuando el servidor responde con DB
+// ── Sistema multi-cuenta ──────────────────────────────
+function loadAccounts() {
+  const raw = localStorage.getItem('pt_accounts');
+  if (raw) return JSON.parse(raw);
+  // migrar datos previos a cuenta principal
+  const legacy = {
+    id: 'acc_default',
+    name: 'Cuenta principal',
+    init: parseFloat(localStorage.getItem('pt_init') || '10000'),
+    trades: JSON.parse(localStorage.getItem('pt_trades') || '[]')
+  };
+  const accounts = [legacy];
+  localStorage.setItem('pt_accounts', JSON.stringify(accounts));
+  return accounts;
+}
+
+let accounts = loadAccounts();
+let currentAccId = localStorage.getItem('pt_current_acc') || accounts[0].id;
+
+// asegura que el ID existe
+if (!accounts.find(a => a.id === currentAccId)) currentAccId = accounts[0].id;
+
+function currentAcc() { return accounts.find(a => a.id === currentAccId); }
+function saveAccounts() { localStorage.setItem('pt_accounts', JSON.stringify(accounts)); }
+function switchAccount(id) {
+  currentAccId = id;
+  localStorage.setItem('pt_current_acc', id);
+  trades = currentAcc().trades;
+  INIT = currentAcc().init;
+  updateTopbarAcc();
+  renderDashboard();
+  closeAccModal();
+}
+
+function updateTopbarAcc() {
+  const acc = currentAcc();
+  document.getElementById('topbar-acc-name').textContent = acc.name;
+  const bal = acc.init + acc.trades.reduce((s, t) => s + (t.pnl || 0), 0);
+  document.getElementById('topbar-acc-bal').textContent = '$' + bal.toFixed(2);
+}
+
+function createAccount() {
+  const name = prompt('Nombre de la nueva cuenta:', 'Cuenta ' + (accounts.length + 1));
+  if (!name) return;
+  const initVal = prompt('Balance inicial ($):', '10000');
+  if (!initVal) return;
+  const init = parseFloat(initVal.replace(/[^0-9.]/g, ''));
+  if (!init || init <= 0) { alert('Valor inválido.'); return; }
+  const acc = { id: 'acc_' + Date.now(), name: name.trim(), init, trades: [] };
+  accounts.push(acc);
+  saveAccounts();
+  renderAccList();
+}
+
+function renameAccount(id) {
+  const acc = accounts.find(a => a.id === id);
+  const name = prompt('Nuevo nombre:', acc.name);
+  if (!name || !name.trim()) return;
+  acc.name = name.trim();
+  saveAccounts();
+  renderAccList();
+  if (id === currentAccId) updateTopbarAcc();
+}
+
+function editAccountBalance(id) {
+  const acc = accounts.find(a => a.id === id);
+  const val = prompt('Balance inicial de "' + acc.name + '" ($):', acc.init);
+  if (val === null) return;
+  const n = parseFloat(val.replace(/[^0-9.]/g, ''));
+  if (!n || n <= 0) { alert('Valor inválido.'); return; }
+  acc.init = n;
+  saveAccounts();
+  renderAccList();
+  if (id === currentAccId) { INIT = n; renderDashboard(); updateTopbarAcc(); }
+}
+
+function deleteAccount(id) {
+  if (accounts.length === 1) { alert('Debes tener al menos una cuenta.'); return; }
+  const acc = accounts.find(a => a.id === id);
+  if (!confirm('¿Eliminar "' + acc.name + '" y todos sus trades?')) return;
+  accounts = accounts.filter(a => a.id !== id);
+  if (currentAccId === id) switchAccount(accounts[0].id);
+  saveAccounts();
+  renderAccList();
+}
+
+function openAccModal() {
+  renderAccList();
+  document.getElementById('acc-modal').style.display = 'flex';
+}
+function closeAccModal(e) {
+  if (e && e.target !== document.getElementById('acc-modal')) return;
+  document.getElementById('acc-modal').style.display = 'none';
+}
+
+function renderAccList() {
+  const list = document.getElementById('acc-list');
+  list.innerHTML = '';
+  accounts.forEach(acc => {
+    const bal = acc.init + acc.trades.reduce((s, t) => s + (t.pnl || 0), 0);
+    const wins = acc.trades.filter(t => t.result === 'win').length;
+    const wr = acc.trades.length ? Math.round(wins / acc.trades.length * 100) : null;
+    const pnl = bal - acc.init;
+    const isActive = acc.id === currentAccId;
+
+    const div = document.createElement('div');
+    div.className = 'acc-item' + (isActive ? ' active' : '');
+    div.innerHTML = `
+      <span class="acc-dot"></span>
+      <div style="flex:1;min-width:0;" onclick="switchAccount('${acc.id}')">
+        <div class="acc-name">${acc.name}</div>
+        <div style="font-size:11px;color:var(--t2);margin-top:2px;">
+          Balance: <span style="color:${bal >= acc.init ? 'var(--pos-t)' : 'var(--neg-t)'}; font-weight:600;">$${bal.toFixed(2)}</span>
+          &nbsp;·&nbsp; ${acc.trades.length} trades
+          ${wr !== null ? `&nbsp;·&nbsp; WR: ${wr}%` : ''}
+          &nbsp;·&nbsp; P&L: <span style="color:${pnl >= 0 ? 'var(--pos-t)' : 'var(--neg-t)'};">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}</span>
+        </div>
+      </div>
+      <div class="acc-actions">
+        <button class="acc-btn" onclick="editAccountBalance('${acc.id}')" title="Editar balance inicial"><i class="ti ti-coin"></i></button>
+        <button class="acc-btn" onclick="renameAccount('${acc.id}')" title="Renombrar"><i class="ti ti-pencil"></i></button>
+        ${accounts.length > 1 ? `<button class="acc-btn del" onclick="deleteAccount('${acc.id}')" title="Eliminar"><i class="ti ti-trash"></i></button>` : ''}
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+// ── Estado global ──────────────────────────────────────
+let trades = currentAcc().trades;
+let INIT = currentAcc().init;
+let dbMode = false;
 let moods = { pre: '', post: '' };
 let fears = [];
 let followPlan = null;
 let stepsCompleted = JSON.parse(localStorage.getItem('pt_steps') || '[]');
 let truthStates = JSON.parse(localStorage.getItem('pt_truths') || '{}');
 let eqChart = null, psChart = null;
-let INIT = parseFloat(localStorage.getItem('pt_init') || '10000');
 
 function editBalance() {
-  const val = prompt('Ingresa el valor de tu cuenta inicial ($):', INIT);
-  if (val === null) return;
-  const n = parseFloat(val.replace(/[^0-9.]/g, ''));
-  if (!n || n <= 0) { alert('Valor inválido.'); return; }
-  INIT = n;
-  localStorage.setItem('pt_init', String(n));
-  renderDashboard();
+  editAccountBalance(currentAccId);
 }
 
 const JOURNAL_QS = [
@@ -763,7 +936,9 @@ async function saveTrade() {
     fears: [...fears], followPlan
   };
   trades.unshift(trade);
-  localStorage.setItem('pt_trades', JSON.stringify(trades));
+  currentAcc().trades = trades;
+  saveAccounts();
+  updateTopbarAcc();
 
   // persistir en DB
   if (dbMode) {
@@ -1024,9 +1199,12 @@ function renderTrades() {
 }
 
 async function clearTrades() {
-  if (!confirm('¿Borrar todo el historial? Esta acción no se puede deshacer.')) return;
+  const acc = currentAcc();
+  if (!confirm(`¿Borrar todos los trades de "${acc.name}"? Esta acción no se puede deshacer.`)) return;
   trades = [];
-  localStorage.setItem('pt_trades', JSON.stringify(trades));
+  acc.trades = [];
+  saveAccounts();
+  updateTopbarAcc();
   if (dbMode) {
     await fetch('/api/trades', { method: 'DELETE' }).catch(() => {});
   }
@@ -1076,16 +1254,18 @@ async function init() {
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data)) {
+        // DB mode: merge DB trades into current account
         trades = data;
-        localStorage.setItem('pt_trades', JSON.stringify(trades));
+        currentAcc().trades = trades;
+        saveAccounts();
         dbMode = true;
         setDbStatus(true);
       }
     }
   } catch (e) {
-    // sin servidor — usar localStorage
     setDbStatus(false);
   }
+  updateTopbarAcc();
   renderDashboard();
 }
 
