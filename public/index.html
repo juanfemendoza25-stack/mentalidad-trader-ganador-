@@ -243,6 +243,40 @@ select option{background:var(--s2);color:var(--t);}
     <!-- ══════════════ DASHBOARD ══════════════ -->
     <div class="sec active" id="sec-dashboard">
 
+      <!-- Fila 0: estadísticas globales todas las cuentas -->
+      <div class="card" style="margin-bottom:12px;padding:12px 20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <i class="ti ti-world" style="color:#C9933A;font-size:16px;"></i>
+            <span style="font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;">Global · Todas las cuentas</span>
+          </div>
+          <div style="display:flex;gap:24px;flex-wrap:wrap;">
+            <div style="text-align:center;">
+              <div style="font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">Win Rate global</div>
+              <div style="font-size:20px;font-weight:700;color:#C9933A;" id="g-wr">—</div>
+              <div style="height:3px;background:var(--s3);border-radius:2px;margin-top:4px;width:80px;overflow:hidden;"><div id="g-wr-bar" style="height:100%;background:#C9933A;border-radius:2px;width:0%;"></div></div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">Disciplina global</div>
+              <div style="font-size:20px;font-weight:700;color:#C9933A;" id="g-disc">—</div>
+              <div style="height:3px;background:var(--s3);border-radius:2px;margin-top:4px;width:80px;overflow:hidden;"><div id="g-disc-bar" style="height:100%;background:#C9933A;border-radius:2px;width:0%;"></div></div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">Total trades</div>
+              <div style="font-size:20px;font-weight:700;color:var(--t);" id="g-tot">0</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">P&L global</div>
+              <div style="font-size:20px;font-weight:700;" id="g-pnl">$0</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">Cuentas</div>
+              <div style="font-size:20px;font-weight:700;color:var(--t);" id="g-accs">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Fila 1: métricas principales -->
       <div class="g4" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:12px;">
         <div class="mc" style="cursor:pointer;" onclick="editBalance()" title="Clic para editar">
@@ -502,6 +536,15 @@ select option{background:var(--s2);color:var(--t);}
               </div>
             </div>
             <div class="form-g full"><label class="fl">Setup / razón de entrada</label><textarea id="t-reason" placeholder="Describe la estructura de mercado, confluencias y por qué este trade tiene edge..."></textarea></div>
+            <div class="form-g full">
+              <label class="fl">Capturas de pantalla · Chart</label>
+              <div id="img-drop" onclick="document.getElementById('img-input').click()" style="border:1.5px dashed var(--b2);border-radius:var(--rm);padding:18px;text-align:center;cursor:pointer;transition:all .2s;background:var(--s2);">
+                <i class="ti ti-photo-up" style="font-size:24px;color:var(--t2);display:block;margin-bottom:6px;"></i>
+                <div style="font-size:12px;color:var(--t2);">Clic para agregar imágenes · máx 5 · JPG/PNG/WebP</div>
+                <input type="file" id="img-input" accept="image/*" multiple style="display:none;" onchange="handleImgUpload(event)">
+              </div>
+              <div id="img-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;"></div>
+            </div>
             <div class="form-g full">
               <label class="fl">¿Seguiste el trading plan?</label>
               <div class="chip-row">
@@ -767,6 +810,92 @@ function editBalance() {
   editAccountBalance(currentAccId);
 }
 
+// ── Estadísticas globales (todas las cuentas) ──
+function renderGlobalStats() {
+  const allTrades = accounts.flatMap(a => a.trades || []);
+  const wins = allTrades.filter(t => t.result === 'win').length;
+  const wr = allTrades.length ? Math.round(wins / allTrades.length * 100) : null;
+  const disc = allTrades.length
+    ? Math.round(allTrades.filter(t => t.followPlan === true).length / allTrades.length * 100)
+    : null;
+  const totalPnl = accounts.reduce((s, a) => {
+    return s + (a.trades || []).reduce((ts, t) => ts + (t.pnl || 0), 0);
+  }, 0);
+
+  document.getElementById('g-wr').textContent = wr !== null ? wr + '%' : '—';
+  document.getElementById('g-wr-bar').style.width = (wr || 0) + '%';
+  document.getElementById('g-wr-bar').style.background = wr >= 50 ? '#C0DD97' : '#F09595';
+  document.getElementById('g-disc').textContent = disc !== null ? disc + '%' : '—';
+  document.getElementById('g-disc-bar').style.width = (disc || 0) + '%';
+  document.getElementById('g-disc-bar').style.background = disc >= 70 ? '#C0DD97' : disc >= 40 ? '#C9933A' : '#F09595';
+  document.getElementById('g-tot').textContent = allTrades.length;
+  const pEl = document.getElementById('g-pnl');
+  pEl.textContent = (totalPnl >= 0 ? '+' : '') + '$' + totalPnl.toFixed(2);
+  pEl.style.color = totalPnl >= 0 ? 'var(--pos-t)' : 'var(--neg-t)';
+  document.getElementById('g-accs').textContent = accounts.length;
+}
+
+// ── Imágenes de trades ──
+let pendingImgs = []; // base64 de las imágenes del trade actual
+
+function handleImgUpload(e) {
+  const files = [...e.target.files].slice(0, 5 - pendingImgs.length);
+  files.forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      pendingImgs.push(ev.target.result);
+      renderImgPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+}
+
+function renderImgPreview() {
+  const box = document.getElementById('img-preview');
+  box.innerHTML = pendingImgs.map((src, i) => `
+    <div style="position:relative;display:inline-block;">
+      <img src="${src}" onclick="openImgViewer('${i}')" style="width:72px;height:72px;object-fit:cover;border-radius:var(--rm);border:0.5px solid var(--b2);cursor:pointer;">
+      <button onclick="removeImg(${i})" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:var(--neg-t);border:none;color:#fff;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+    </div>
+  `).join('');
+  const drop = document.getElementById('img-drop');
+  drop.style.display = pendingImgs.length >= 5 ? 'none' : 'block';
+}
+
+function removeImg(i) {
+  pendingImgs.splice(i, 1);
+  renderImgPreview();
+}
+
+function clearImgForm() {
+  pendingImgs = [];
+  const box = document.getElementById('img-preview');
+  if (box) box.innerHTML = '';
+  const drop = document.getElementById('img-drop');
+  if (drop) drop.style.display = 'block';
+}
+
+// visor de imagen full-screen
+function openImgViewer(idxOrSrc) {
+  const src = typeof idxOrSrc === 'string' && idxOrSrc.startsWith('data:')
+    ? idxOrSrc
+    : pendingImgs[parseInt(idxOrSrc)];
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:300;display:flex;align-items:center;justify-content:center;cursor:zoom-out;';
+  ov.innerHTML = `<img src="${src}" style="max-width:95vw;max-height:92vh;border-radius:var(--r);object-fit:contain;">`;
+  ov.onclick = () => ov.remove();
+  document.body.appendChild(ov);
+}
+
+function openTradeImgViewer(tradeId, imgIdx) {
+  const acc = accounts.find(a => (a.trades || []).some(t => t.id === tradeId)) || currentAcc();
+  const trade = acc.trades.find(t => t.id === tradeId);
+  if (!trade || !trade.images || !trade.images[imgIdx]) return;
+  openImgViewer(trade.images[imgIdx]);
+}
+
 const JOURNAL_QS = [
   '¿En qué momento de hoy sentiste que tu valor dependía del resultado de un trade?',
   '¿Cuándo hoy operaste desde el miedo en lugar del plan? ¿Qué desencadenó ese miedo?',
@@ -933,12 +1062,14 @@ async function saveTrade() {
     rr, reason: document.getElementById('t-reason').value,
     reflection: document.getElementById('t-ref').value,
     preMood: moods.pre, postMood: moods.post,
-    fears: [...fears], followPlan
+    fears: [...fears], followPlan,
+    images: [...pendingImgs]
   };
   trades.unshift(trade);
   currentAcc().trades = trades;
   saveAccounts();
   updateTopbarAcc();
+  clearImgForm();
 
   // persistir en DB
   if (dbMode) {
@@ -1046,6 +1177,7 @@ function renderDashboard() {
   renderEquity(bal);
   renderPsych();
   renderStreak();
+  renderGlobalStats();
 }
 
 function renderEquity(bal) {
@@ -1185,14 +1317,26 @@ function renderTrades() {
   const body = document.getElementById('trades-body');
   if (!trades.length) { body.innerHTML = '<div class="empty"><i class="ti ti-chart-candle"></i><p>Sin trades registrados aún.<br>Ve a <strong>Trade</strong> para comenzar.</p></div>'; return; }
   const moodMap = { calm: '😌', focused: '🎯', anxious: '😰', fomo: '😤', revenge: '😠', satisfied: '😊', frustrated: '😤' };
-  let html = '<table class="tt"><thead><tr><th>Fecha</th><th>Dir</th><th>Entrada</th><th>R/R</th><th>P&L</th><th>Plan</th><th>Mood</th></tr></thead><tbody>';
+  let html = '<table class="tt"><thead><tr><th>Fecha</th><th>Dir</th><th>Entrada</th><th>R/R</th><th>P&L</th><th>Plan</th><th>Mood</th><th>Charts</th></tr></thead><tbody>';
   trades.slice(0, 50).forEach(t => {
     const date = new Date(t.date).toLocaleDateString('es', { day: '2-digit', month: '2-digit' });
     const pc = t.pnl > 0 ? 'tp' : t.pnl < 0 ? 'tn' : '';
     const ps = (t.pnl > 0 ? '+' : '') + '$' + t.pnl.toFixed(2);
     const pi = t.followPlan === true ? '✓' : t.followPlan === 'partial' ? '~' : '✗';
     const pk = t.followPlan === true ? 'var(--pos-t)' : t.followPlan === false ? 'var(--neg-t)' : '#854F0B';
-    html += `<tr><td style="color:var(--t2);font-size:11px;">${date}</td><td style="font-weight:600;color:${t.dir==='BUY'?'var(--pos-t)':'var(--neg-t)'};font-size:12px;">${t.dir}</td><td style="font-size:11px;">${t.entry || '—'}</td><td style="font-size:11px;">${t.rr ? t.rr + 'R' : '—'}</td><td class="${pc}" style="font-size:12px;">${ps}</td><td style="color:${pk};font-size:15px;">${pi}</td><td style="font-size:15px;">${moodMap[t.preMood] || '—'} → ${moodMap[t.postMood] || '—'}</td></tr>`;
+    const imgs = t.images && t.images.length
+      ? t.images.map((src, i) => `<img src="${src}" onclick="openTradeImgViewer(${t.id},${i})" style="width:36px;height:36px;object-fit:cover;border-radius:5px;border:0.5px solid var(--b2);cursor:zoom-in;" title="Ver imagen">`).join('')
+      : '<span style="color:var(--b2);font-size:11px;">—</span>';
+    html += `<tr>
+      <td style="color:var(--t2);font-size:11px;">${date}</td>
+      <td style="font-weight:600;color:${t.dir==='BUY'?'var(--pos-t)':'var(--neg-t)'};font-size:12px;">${t.dir}</td>
+      <td style="font-size:11px;">${t.entry || '—'}</td>
+      <td style="font-size:11px;">${t.rr ? t.rr + 'R' : '—'}</td>
+      <td class="${pc}" style="font-size:12px;">${ps}</td>
+      <td style="color:${pk};font-size:15px;">${pi}</td>
+      <td style="font-size:15px;">${moodMap[t.preMood] || '—'} → ${moodMap[t.postMood] || '—'}</td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap;">${imgs}</div></td>
+    </tr>`;
   });
   html += '</tbody></table>';
   body.innerHTML = html;
