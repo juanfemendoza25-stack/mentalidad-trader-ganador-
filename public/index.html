@@ -192,6 +192,10 @@ select option{background:var(--s2);color:var(--t);}
         <div class="logo-sub">XAU/USD · El Trader Sólido · Mark Douglas</div>
       </div>
     </div>
+    <div style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:var(--rm);background:var(--s2);border:0.5px solid var(--b);">
+      <span id="db-dot" style="width:7px;height:7px;border-radius:50%;background:#888780;display:inline-block;transition:background .3s;"></span>
+      <span id="db-lbl" style="font-size:11px;color:var(--t2);">Local</span>
+    </div>
     <nav class="nav">
       <button class="nb active" onclick="go('dashboard',this)"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
       <button class="nb" onclick="go('mente',this)"><i class="ti ti-brain"></i> Mentalidad</button>
@@ -567,6 +571,7 @@ select option{background:var(--s2);color:var(--t);}
 <script>
 // ── Estado global ──
 let trades = JSON.parse(localStorage.getItem('pt_trades') || '[]');
+let dbMode = false; // true cuando el servidor responde con DB
 let moods = { pre: '', post: '' };
 let fears = [];
 let followPlan = null;
@@ -745,6 +750,12 @@ async function saveTrade() {
   };
   trades.unshift(trade);
   localStorage.setItem('pt_trades', JSON.stringify(trades));
+
+  // persistir en DB
+  if (dbMode) {
+    fetch('/api/trades', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(trade) })
+      .catch(() => {});
+  }
 
   const ai = document.getElementById('trade-ai');
   ai.style.display = 'block';
@@ -972,9 +983,13 @@ function renderTrades() {
   body.innerHTML = html;
 }
 
-function clearTrades() {
+async function clearTrades() {
   if (!confirm('¿Borrar todo el historial? Esta acción no se puede deshacer.')) return;
-  trades = []; localStorage.setItem('pt_trades', JSON.stringify(trades));
+  trades = [];
+  localStorage.setItem('pt_trades', JSON.stringify(trades));
+  if (dbMode) {
+    await fetch('/api/trades', { method: 'DELETE' }).catch(() => {});
+  }
   renderTrades(); renderDashboard();
 }
 
@@ -1015,7 +1030,34 @@ async function callAI(prompt, targetId) {
 }
 
 // ── Init ──
-renderDashboard();
+async function init() {
+  try {
+    const res = await fetch('/api/trades');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        trades = data;
+        localStorage.setItem('pt_trades', JSON.stringify(trades));
+        dbMode = true;
+        setDbStatus(true);
+      }
+    }
+  } catch (e) {
+    // sin servidor — usar localStorage
+    setDbStatus(false);
+  }
+  renderDashboard();
+}
+
+function setDbStatus(connected) {
+  const dot = document.getElementById('db-dot');
+  const lbl = document.getElementById('db-lbl');
+  if (!dot) return;
+  dot.style.background = connected ? '#C0DD97' : '#888780';
+  lbl.textContent = connected ? 'DB conectada' : 'Local';
+}
+
+init();
 </script>
 </body>
 </html>
