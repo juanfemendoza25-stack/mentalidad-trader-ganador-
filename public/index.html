@@ -205,25 +205,73 @@ select option{background:var(--s2);color:var(--t);}
 
     <!-- ══════════════ DASHBOARD ══════════════ -->
     <div class="sec active" id="sec-dashboard">
-      <div class="g4">
+
+      <!-- Fila 1: métricas principales -->
+      <div class="g4" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:12px;">
         <div class="mc"><div class="ml">Balance</div><div class="mv gold" id="m-bal">$10,000</div><div class="ms">Cuenta actual</div></div>
         <div class="mc"><div class="ml">P&L Hoy</div><div class="mv" id="m-pnl">$0.00</div><div class="ms" id="m-pnlp">0.00%</div></div>
-        <div class="mc"><div class="ml">Winrate</div><div class="mv gold" id="m-wr">—</div><div class="ms" id="m-wrs">Sin trades</div></div>
-        <div class="mc"><div class="ml">Trades</div><div class="mv" id="m-tot">0</div><div class="ms" id="m-wl">0W / 0L</div></div>
-        <div class="mc"><div class="ml">R promedio</div><div class="mv" id="m-r">—</div><div class="ms">Risk/Reward</div></div>
+        <div class="mc">
+          <div class="ml">Win Rate</div>
+          <div class="mv gold" id="m-wr">—</div>
+          <div style="margin-top:6px;height:4px;background:var(--s3);border-radius:2px;overflow:hidden;"><div id="m-wr-bar" style="height:100%;background:#C9933A;border-radius:2px;width:0%;transition:width .5s;"></div></div>
+          <div class="ms" id="m-wrs" style="margin-top:4px;">Sin trades</div>
+        </div>
+        <div class="mc"><div class="ml">Total trades</div><div class="mv" id="m-tot">0</div><div class="ms" id="m-wl">0W · 0L · 0BE</div></div>
+        <div class="mc"><div class="ml">Trades / día</div><div class="mv" id="m-tpd">—</div><div class="ms" id="m-tpd-s">días activos</div></div>
+        <div class="mc"><div class="ml">R/R promedio</div><div class="mv" id="m-r">—</div><div class="ms">Esperanza matemática</div></div>
         <div class="mc"><div class="ml">Mayor win</div><div class="mv pos" id="m-best">—</div></div>
         <div class="mc"><div class="ml">Mayor loss</div><div class="mv neg" id="m-worst">—</div></div>
-        <div class="mc"><div class="ml">Disciplina</div><div class="mv gold" id="m-disc">—</div><div class="ms">Plan seguido</div></div>
+        <div class="mc">
+          <div class="ml">Disciplina</div>
+          <div class="mv gold" id="m-disc">—</div>
+          <div style="margin-top:6px;height:4px;background:var(--s3);border-radius:2px;overflow:hidden;"><div id="m-disc-bar" style="height:100%;background:#C9933A;border-radius:2px;width:0%;transition:width .5s;"></div></div>
+          <div class="ms">Plan seguido</div>
+        </div>
+        <div class="mc"><div class="ml">P&L total</div><div class="mv" id="m-pnl-total">$0.00</div><div class="ms">Desde inicio</div></div>
+        <div class="mc"><div class="ml">Profit factor</div><div class="mv" id="m-pf">—</div><div class="ms">Wins / Losses $</div></div>
+        <div class="mc"><div class="ml">Días activos</div><div class="mv" id="m-days">0</div><div class="ms">Con al menos 1 trade</div></div>
       </div>
-      <div class="two-col">
-        <div class="card"><div class="ct"><i class="ti ti-chart-line"></i> Curva de equity</div><div class="cw"><canvas id="eqChart" role="img" aria-label="Curva de equity">Balance histórico</canvas></div></div>
-        <div class="card"><div class="ct"><i class="ti ti-brain"></i> Miedos detectados</div><div class="cw"><canvas id="psChart" role="img" aria-label="Distribución de miedos">Distribución de miedos</canvas></div></div>
+
+      <!-- Fila 2: gráficos -->
+      <div class="two-col" style="margin-bottom:12px;">
+        <div class="card" style="margin-bottom:0;"><div class="ct"><i class="ti ti-chart-line"></i> Curva de equity</div><div class="cw" style="height:200px;"><canvas id="eqChart" role="img" aria-label="Curva de equity"></canvas></div></div>
+        <div class="card" style="margin-bottom:0;"><div class="ct"><i class="ti ti-brain"></i> Miedos detectados</div><div class="cw" style="height:200px;"><canvas id="psChart" role="img" aria-label="Distribución de miedos"></canvas></div></div>
       </div>
-      <div class="card">
-        <div class="ct"><i class="ti ti-flame"></i> Racha de identidad · 21 días</div>
-        <div class="streak-row" id="streak"></div>
-        <div style="font-size:11px;color:var(--t2);" id="streak-lbl">Registra trades respetando tu plan para construir tu racha</div>
+
+      <!-- Fila 3: racha 21 días -->
+      <div class="card" style="margin-bottom:0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+          <div class="ct" style="margin:0;"><i class="ti ti-flame"></i> Racha de identidad · 21 días</div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;">
+            <div style="text-align:center;">
+              <div style="font-size:22px;font-weight:700;color:#C9933A;" id="streak-count">0</div>
+              <div style="font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;">Racha actual</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:22px;font-weight:700;color:var(--pos-t);" id="streak-best">0</div>
+              <div style="font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;">Mejor racha</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:22px;font-weight:700;color:var(--t);" id="streak-pct">0%</div>
+              <div style="font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;">Días con plan</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calendario 3 semanas -->
+        <div id="streak-cal" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:12px;"></div>
+
+        <!-- Leyenda + mensaje -->
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div style="display:flex;gap:14px;align-items:center;">
+            <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t2);"><span style="width:10px;height:10px;border-radius:3px;background:var(--pos-bg);border:0.5px solid var(--pos-t);display:inline-block;"></span>Con plan</div>
+            <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t2);"><span style="width:10px;height:10px;border-radius:3px;background:var(--s2);border:0.5px solid var(--b2);display:inline-block;"></span>Sin trade</div>
+            <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t2);"><span style="width:10px;height:10px;border-radius:3px;background:var(--neg-bg);border:0.5px solid var(--neg-t);display:inline-block;"></span>Sin plan</div>
+          </div>
+          <div style="font-size:11px;color:var(--t2);" id="streak-lbl">Registra trades respetando tu plan para construir tu racha</div>
+        </div>
       </div>
+
     </div>
 
     <!-- ══════════════ MENTALIDAD ══════════════ -->
@@ -745,6 +793,7 @@ function renderDashboard() {
   const bal = INIT + allPnl;
   const wins = trades.filter(t => t.result === 'win').length;
   const losses = trades.filter(t => t.result === 'loss').length;
+  const bes = trades.filter(t => t.result === 'be').length;
   const wr = trades.length ? Math.round((wins / trades.length) * 100) : null;
   const pnls = trades.map(t => t.pnl || 0);
   const best = pnls.length ? Math.max(...pnls) : null;
@@ -753,19 +802,46 @@ function renderDashboard() {
   const avgR = rrs.length ? (rrs.reduce((s, t) => s + parseFloat(t.rr), 0) / rrs.length).toFixed(2) : null;
   const disc = trades.length ? Math.round((trades.filter(t => t.followPlan === true).length / trades.length) * 100) : null;
 
+  // días activos únicos
+  const activeDays = new Set(trades.map(t => t.date.slice(0, 10))).size;
+  const tpd = activeDays > 0 ? (trades.length / activeDays).toFixed(1) : null;
+
+  // profit factor
+  const grossWin = trades.filter(t => (t.pnl || 0) > 0).reduce((s, t) => s + t.pnl, 0);
+  const grossLoss = Math.abs(trades.filter(t => (t.pnl || 0) < 0).reduce((s, t) => s + t.pnl, 0));
+  const pf = grossLoss > 0 ? (grossWin / grossLoss).toFixed(2) : (grossWin > 0 ? '∞' : null);
+
   document.getElementById('m-bal').textContent = '$' + bal.toFixed(2);
   const pe = document.getElementById('m-pnl');
   pe.textContent = (pnlToday >= 0 ? '+' : '') + '$' + pnlToday.toFixed(2);
   pe.className = 'mv ' + (pnlToday > 0 ? 'pos' : pnlToday < 0 ? 'neg' : '');
   document.getElementById('m-pnlp').textContent = (pnlToday >= 0 ? '+' : '') + ((pnlToday / INIT) * 100).toFixed(2) + '%';
+
   document.getElementById('m-wr').textContent = wr !== null ? wr + '%' : '—';
-  document.getElementById('m-wrs').textContent = wr !== null ? (wr >= 50 ? 'Encima del 50%' : 'Bajo el 50%') : 'Sin trades';
+  document.getElementById('m-wr-bar').style.width = (wr || 0) + '%';
+  document.getElementById('m-wr-bar').style.background = wr >= 50 ? '#C0DD97' : '#F09595';
+  document.getElementById('m-wrs').textContent = wr !== null ? (wr >= 50 ? 'Por encima del 50%' : 'Por debajo del 50%') : 'Sin trades';
+
   document.getElementById('m-tot').textContent = trades.length;
-  document.getElementById('m-wl').textContent = wins + 'W / ' + losses + 'L';
+  document.getElementById('m-wl').textContent = wins + 'W · ' + losses + 'L · ' + bes + 'BE';
   document.getElementById('m-r').textContent = avgR !== null ? avgR + 'R' : '—';
   document.getElementById('m-best').textContent = best !== null ? '+$' + best.toFixed(2) : '—';
   document.getElementById('m-worst').textContent = worst !== null ? '$' + worst.toFixed(2) : '—';
+
   document.getElementById('m-disc').textContent = disc !== null ? disc + '%' : '—';
+  document.getElementById('m-disc-bar').style.width = (disc || 0) + '%';
+  document.getElementById('m-disc-bar').style.background = disc >= 70 ? '#C0DD97' : disc >= 40 ? '#C9933A' : '#F09595';
+
+  const totalSign = allPnl >= 0 ? '+' : '';
+  const ptEl = document.getElementById('m-pnl-total');
+  ptEl.textContent = totalSign + '$' + allPnl.toFixed(2);
+  ptEl.className = 'mv ' + (allPnl > 0 ? 'pos' : allPnl < 0 ? 'neg' : '');
+
+  document.getElementById('m-pf').textContent = pf !== null ? pf : '—';
+  document.getElementById('m-pf').className = 'mv ' + (pf > 1 ? 'pos' : pf !== null && pf !== '∞' ? 'neg' : 'gold');
+  document.getElementById('m-days').textContent = activeDays;
+  document.getElementById('m-tpd').textContent = tpd !== null ? tpd : '—';
+  document.getElementById('m-tpd-s').textContent = activeDays > 0 ? activeDays + ' días activos' : 'días activos';
 
   renderEquity(bal);
   renderPsych();
@@ -793,21 +869,89 @@ function renderPsych() {
 }
 
 function renderStreak() {
-  const c = document.getElementById('streak'); c.innerHTML = '';
+  const cal = document.getElementById('streak-cal');
+  cal.innerHTML = '';
   const today = new Date().toISOString().slice(0, 10);
-  for (let i = 20; i >= 0; i--) {
+  const DAYS = ['L','M','X','J','V','S','D'];
+
+  // cabecera días de semana
+  DAYS.forEach(d => {
+    const h = document.createElement('div');
+    h.style.cssText = 'text-align:center;font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;padding-bottom:2px;font-weight:600;';
+    h.textContent = d;
+    cal.appendChild(h);
+  });
+
+  // 21 días hacia atrás desde hoy, alineado a lunes
+  const todayDate = new Date();
+  const dayOfWeek = (todayDate.getDay() + 6) % 7; // 0=lunes
+  const startDate = new Date(todayDate);
+  startDate.setDate(todayDate.getDate() - dayOfWeek - 14); // 3 semanas completas
+
+  for (let i = 0; i < 21; i++) {
+    const d = new Date(startDate);
+    d.setDate(startDate.getDate() + i);
+    const ds = d.toISOString().slice(0, 10);
+    const isToday = ds === today;
+    const isFuture = ds > today;
+    const dayTrades = trades.filter(t => t.date.slice(0, 10) === ds);
+    const hasPlan = dayTrades.some(t => t.followPlan === true);
+    const hasNoPlan = dayTrades.length > 0 && !hasPlan;
+
+    const div = document.createElement('div');
+    div.title = ds + (dayTrades.length ? ` · ${dayTrades.length} trade(s)` : '');
+
+    let bg = 'var(--s2)'; let border = 'var(--b)'; let color = 'var(--t2)';
+    if (isFuture) { bg = 'transparent'; border = 'transparent'; color = 'transparent'; }
+    else if (hasPlan) { bg = 'var(--pos-bg)'; border = 'var(--pos-t)'; color = 'var(--pos-t)'; }
+    else if (hasNoPlan) { bg = 'var(--neg-bg)'; border = 'var(--neg-t)'; color = 'var(--neg-t)'; }
+
+    div.style.cssText = `
+      aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      border-radius:8px;border:0.5px solid ${border};background:${bg};
+      font-size:12px;font-weight:${isToday?'700':'500'};color:${color};
+      ${isToday ? 'outline:1.5px solid #C9933A;outline-offset:1px;' : ''}
+      cursor:default;transition:all .2s;
+    `;
+    div.innerHTML = `<span>${isFuture ? '' : d.getDate()}</span>${dayTrades.length > 0 ? `<span style="font-size:8px;opacity:.7;">${dayTrades.length}t</span>` : ''}`;
+    cal.appendChild(div);
+  }
+
+  // racha actual (días consecutivos con plan)
+  let streak = 0;
+  for (let i = 0; i < 60; i++) {
     const d = new Date(); d.setDate(d.getDate() - i);
     const ds = d.toISOString().slice(0, 10);
-    const good = trades.some(t => t.date.slice(0, 10) === ds && t.followPlan === true);
-    const isT = ds === today;
-    const div = document.createElement('div');
-    div.className = 'sd' + (good ? ' done' : '') + (isT ? ' today' : '');
-    div.textContent = d.getDate(); div.title = ds;
-    c.appendChild(div);
+    if (trades.some(t => t.date.slice(0, 10) === ds && t.followPlan === true)) streak++;
+    else if (i > 0) break;
   }
-  let s = 0;
-  for (let i = 0; i < 30; i++) { const d = new Date(); d.setDate(d.getDate() - i); const ds = d.toISOString().slice(0, 10); if (trades.some(t => t.date.slice(0, 10) === ds && t.followPlan === true)) s++; else if (i > 0) break; }
-  document.getElementById('streak-lbl').textContent = s > 0 ? `Racha: ${s} día(s) siguiendo el plan. ¡Sostenla!` : 'Registra trades respetando tu plan para construir tu racha';
+
+  // mejor racha histórica
+  const allDays = [...new Set(trades.map(t => t.date.slice(0,10)))].sort();
+  let best = 0, cur = 0, prev = null;
+  allDays.forEach(ds => {
+    const ok = trades.some(t => t.date.slice(0,10) === ds && t.followPlan === true);
+    if (ok) {
+      if (prev) {
+        const diff = (new Date(ds) - new Date(prev)) / 86400000;
+        cur = diff === 1 ? cur + 1 : 1;
+      } else cur = 1;
+      if (cur > best) best = cur;
+    } else cur = 0;
+    prev = ds;
+  });
+
+  // % días con plan
+  const activeDays = [...new Set(trades.map(t => t.date.slice(0,10)))];
+  const daysWithPlan = activeDays.filter(ds => trades.some(t => t.date.slice(0,10) === ds && t.followPlan === true)).length;
+  const pct = activeDays.length > 0 ? Math.round((daysWithPlan / activeDays.length) * 100) : 0;
+
+  document.getElementById('streak-count').textContent = streak;
+  document.getElementById('streak-best').textContent = best;
+  document.getElementById('streak-pct').textContent = pct + '%';
+  document.getElementById('streak-lbl').textContent = streak > 0
+    ? `${streak} día(s) consecutivos siguiendo el plan · ¡Sostenla!`
+    : 'Registra trades respetando tu plan para construir tu racha';
 }
 
 // ── Historial ──
