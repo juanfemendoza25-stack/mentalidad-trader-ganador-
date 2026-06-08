@@ -137,6 +137,8 @@ textarea{height:70px;resize:vertical;}
 .ri{display:flex;align-items:flex-start;gap:8px;padding:9px 12px;background:var(--s2);border-radius:var(--rm);border:0.5px solid var(--b);margin-bottom:6px;}
 .ri i{color:#C9933A;font-size:14px;margin-top:2px;flex-shrink:0;}
 .re{flex:1;background:transparent;border:none;font-size:12px;color:var(--t);font-family:inherit;resize:none;outline:none;min-height:18px;}
+.ri-del{background:transparent;border:none;cursor:pointer;color:var(--t2);font-size:13px;padding:0 0 0 4px;opacity:.4;flex-shrink:0;margin-top:1px;transition:opacity .15s,color .15s;line-height:1;}
+.ri-del:hover{opacity:1;color:var(--neg-t);}
 .arb{display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:var(--rm);border:0.5px dashed var(--b2);background:transparent;color:var(--t2);font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s;}
 .arb:hover{border-color:#C9933A;color:#C9933A;}
 
@@ -588,37 +590,37 @@ select option{background:var(--s2);color:var(--t);}
           <div>
             <div class="pt">Entradas permitidas</div>
             <div id="pl-ent">
-              <div class="ri"><i class="ti ti-check"></i><textarea class="re" rows="1">Estructura CHoCH + BOS confirmado en H1</textarea></div>
-              <div class="ri"><i class="ti ti-check"></i><textarea class="re" rows="1">Liquidez barrida + FVG en M15</textarea></div>
-              <div class="ri"><i class="ti ti-check"></i><textarea class="re" rows="1">Solo sesiones London y New York</textarea></div>
+              <div class="ri"><i class="ti ti-check"></i><textarea class="re" rows="1">Estructura CHoCH + BOS confirmado en H1</textarea><button class="ri-del" onclick="this.closest('.ri').remove()" title="Eliminar"><i class="ti ti-x"></i></button></div>
+              <div class="ri"><i class="ti ti-check"></i><textarea class="re" rows="1">Liquidez barrida + FVG en M15</textarea><button class="ri-del" onclick="this.closest('.ri').remove()" title="Eliminar"><i class="ti ti-x"></i></button></div>
+              <div class="ri"><i class="ti ti-check"></i><textarea class="re" rows="1">Solo sesiones London y New York</textarea><button class="ri-del" onclick="this.closest('.ri').remove()" title="Eliminar"><i class="ti ti-x"></i></button></div>
             </div>
             <button class="arb" onclick="addRule('pl-ent')"><i class="ti ti-plus"></i> Agregar regla</button>
           </div>
           <div>
             <div class="pt">Prohibiciones absolutas</div>
             <div id="pl-proh">
-              <div class="ri"><i class="ti ti-x" style="color:var(--neg-t);"></i><textarea class="re" rows="1">No tradear en noticias de alto impacto (NFP, CPI, Fed)</textarea></div>
-              <div class="ri"><i class="ti ti-x" style="color:var(--neg-t);"></i><textarea class="re" rows="1">No mover SL en contra de la posición</textarea></div>
-              <div class="ri"><i class="ti ti-x" style="color:var(--neg-t);"></i><textarea class="re" rows="1">No revenge trading después de una pérdida</textarea></div>
+              <div class="ri"><i class="ti ti-x" style="color:var(--neg-t);"></i><textarea class="re" rows="1">No tradear en noticias de alto impacto (NFP, CPI, Fed)</textarea><button class="ri-del" onclick="this.closest('.ri').remove()" title="Eliminar"><i class="ti ti-x"></i></button></div>
+              <div class="ri"><i class="ti ti-x" style="color:var(--neg-t);"></i><textarea class="re" rows="1">No mover SL en contra de la posición</textarea><button class="ri-del" onclick="this.closest('.ri').remove()" title="Eliminar"><i class="ti ti-x"></i></button></div>
+              <div class="ri"><i class="ti ti-x" style="color:var(--neg-t);"></i><textarea class="re" rows="1">No revenge trading después de una pérdida</textarea><button class="ri-del" onclick="this.closest('.ri').remove()" title="Eliminar"><i class="ti ti-x"></i></button></div>
             </div>
             <button class="arb" onclick="addRule('pl-proh')"><i class="ti ti-plus"></i> Agregar regla</button>
           </div>
           <div>
             <div class="pt">Gestión de riesgo</div>
             <div id="pl-risk">
-              <div class="ri"><i class="ti ti-shield"></i><textarea class="re" rows="1">Riesgo máximo: 1% de la cuenta por trade</textarea></div>
-              <div class="ri"><i class="ti ti-shield"></i><textarea class="re" rows="1">Máximo 3 trades por día</textarea></div>
-              <div class="ri"><i class="ti ti-shield"></i><textarea class="re" rows="1">Stop del día: -3% de la cuenta → cerrar MT5</textarea></div>
+              <div class="ri"><i class="ti ti-shield"></i><textarea class="re" rows="1">Riesgo máximo: 1% de la cuenta por trade</textarea><button class="ri-del" onclick="this.closest('.ri').remove()" title="Eliminar"><i class="ti ti-x"></i></button></div>
+              <div class="ri"><i class="ti ti-shield"></i><textarea class="re" rows="1">Máximo 3 trades por día</textarea><button class="ri-del" onclick="this.closest('.ri').remove()" title="Eliminar"><i class="ti ti-x"></i></button></div>
+              <div class="ri"><i class="ti ti-shield"></i><textarea class="re" rows="1">Stop del día: -3% de la cuenta → cerrar MT5</textarea><button class="ri-del" onclick="this.closest('.ri').remove()" title="Eliminar"><i class="ti ti-x"></i></button></div>
             </div>
             <button class="arb" onclick="addRule('pl-risk')"><i class="ti ti-plus"></i> Agregar regla</button>
           </div>
           <div>
             <div class="pt">Checklist pre-sesión</div>
             <div id="pl-check">
-              <div class="ri"><i class="ti ti-checkbox"></i><textarea class="re" rows="1">Revisé bias del D1 y H4</textarea></div>
-              <div class="ri"><i class="ti ti-checkbox"></i><textarea class="re" rows="1">Marqué zonas de interés y liquidez</textarea></div>
-              <div class="ri"><i class="ti ti-checkbox"></i><textarea class="re" rows="1">Revisé calendario económico</textarea></div>
-              <div class="ri"><i class="ti ti-checkbox"></i><textarea class="re" rows="1">Estado mental: apto para operar</textarea></div>
+              <div class="ri"><i class="ti ti-checkbox"></i><textarea class="re" rows="1">Revisé bias del D1 y H4</textarea><button class="ri-del" onclick="this.closest('.ri').remove()" title="Eliminar"><i class="ti ti-x"></i></button></div>
+              <div class="ri"><i class="ti ti-checkbox"></i><textarea class="re" rows="1">Marqué zonas de interés y liquidez</textarea><button class="ri-del" onclick="this.closest('.ri').remove()" title="Eliminar"><i class="ti ti-x"></i></button></div>
+              <div class="ri"><i class="ti ti-checkbox"></i><textarea class="re" rows="1">Revisé calendario económico</textarea><button class="ri-del" onclick="this.closest('.ri').remove()" title="Eliminar"><i class="ti ti-x"></i></button></div>
+              <div class="ri"><i class="ti ti-checkbox"></i><textarea class="re" rows="1">Estado mental: apto para operar</textarea><button class="ri-del" onclick="this.closest('.ri').remove()" title="Eliminar"><i class="ti ti-x"></i></button></div>
             </div>
             <button class="arb" onclick="addRule('pl-check')"><i class="ti ti-plus"></i> Agregar ítem</button>
           </div>
@@ -1126,7 +1128,7 @@ async function saveTrade() {
 function addRule(listId) {
   const l = document.getElementById(listId);
   const d = document.createElement('div'); d.className = 'ri';
-  d.innerHTML = '<i class="ti ti-check"></i><textarea class="re" rows="1" placeholder="Escribe la regla..."></textarea>';
+  d.innerHTML = '<i class="ti ti-check"></i><textarea class="re" rows="1" placeholder="Escribe la regla..."></textarea><button class="ri-del" onclick="this.closest(\'.ri\').remove()" title="Eliminar"><i class="ti ti-x"></i></button>';
   l.appendChild(d); d.querySelector('textarea').focus();
 }
 
