@@ -1333,7 +1333,7 @@ function renderTrades() {
   const body = document.getElementById('trades-body');
   if (!trades.length) { body.innerHTML = '<div class="empty"><i class="ti ti-chart-candle"></i><p>Sin trades registrados aún.<br>Ve a <strong>Trade</strong> para comenzar.</p></div>'; return; }
   const moodMap = { calm: '😌', focused: '🎯', anxious: '😰', fomo: '😤', revenge: '😠', satisfied: '😊', frustrated: '😤' };
-  let html = '<table class="tt"><thead><tr><th>Fecha</th><th>Dir</th><th>Entrada</th><th>R/R</th><th>P&L</th><th>Plan</th><th>Mood</th><th>Charts</th></tr></thead><tbody>';
+  let html = '<table class="tt"><thead><tr><th>Fecha</th><th>Dir</th><th>Entrada</th><th>R/R</th><th>P&L</th><th>Plan</th><th>Mood</th><th>Charts</th><th></th></tr></thead><tbody>';
   trades.slice(0, 50).forEach(t => {
     const date = new Date(t.date).toLocaleDateString('es', { day: '2-digit', month: '2-digit' });
     const pc = t.pnl > 0 ? 'tp' : t.pnl < 0 ? 'tn' : '';
@@ -1352,10 +1352,22 @@ function renderTrades() {
       <td style="color:${pk};font-size:15px;">${pi}</td>
       <td style="font-size:15px;">${moodMap[t.preMood] || '—'} → ${moodMap[t.postMood] || '—'}</td>
       <td><div style="display:flex;gap:4px;flex-wrap:wrap;">${imgs}</div></td>
+      <td><button onclick="deleteOneTrade(${t.id})" style="background:transparent;border:none;cursor:pointer;color:var(--neg-t);font-size:15px;padding:4px;opacity:.6;transition:opacity .15s;" title="Borrar trade" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.6"><i class="ti ti-trash"></i></button></td>
     </tr>`;
   });
   html += '</tbody></table>';
   body.innerHTML = html;
+}
+
+async function deleteOneTrade(id) {
+  trades = trades.filter(t => t.id !== id);
+  currentAcc().trades = trades;
+  saveAccounts();
+  updateTopbarAcc();
+  if (dbMode) {
+    await fetch('/api/trades/' + id, { method: 'DELETE' }).catch(() => {});
+  }
+  renderTrades(); renderDashboard();
 }
 
 async function clearTrades() {
