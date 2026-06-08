@@ -114,9 +114,12 @@ textarea{height:70px;resize:vertical;}
 .chip:hover{border-color:var(--b2);background:var(--s);}
 .chip.on{background:var(--gold-bg);color:var(--gold-text);border-color:#EF9F27;font-weight:600;}
 .mood-row{display:flex;gap:6px;}
-.mb{flex:1;padding:8px 4px;text-align:center;border-radius:var(--rm);border:0.5px solid var(--b);background:var(--s2);cursor:pointer;font-size:20px;transition:all .15s;font-family:inherit;}
+.mb{flex:1;padding:10px 4px 8px;text-align:center;border-radius:var(--rm);border:0.5px solid var(--b);background:var(--s2);cursor:pointer;font-size:20px;transition:all .15s;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.mb span{font-size:10px;color:var(--t2);letter-spacing:.02em;line-height:1;font-weight:500;}
 .mb:hover{border-color:var(--b2);}
+.mb:hover span{color:var(--t);}
 .mb.on{border:1.5px solid #C9933A;background:var(--gold-bg);}
+.mb.on span{color:var(--gold-text);}
 
 /* BOTONES */
 .sbtn{width:100%;padding:11px;border-radius:var(--rm);background:#C9933A;color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s;font-family:inherit;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;}
@@ -536,11 +539,11 @@ select option{background:var(--s2);color:var(--t);}
             <div class="form-g full">
               <label class="fl">Estado mental PRE-trade</label>
               <div class="mood-row" id="pre-mood">
-                <button class="mb" onclick="setMood('pre','calm',this)" title="Calmo">😌</button>
-                <button class="mb" onclick="setMood('pre','focused',this)" title="Enfocado">🎯</button>
-                <button class="mb" onclick="setMood('pre','anxious',this)" title="Ansioso">😰</button>
-                <button class="mb" onclick="setMood('pre','fomo',this)" title="FOMO">😤</button>
-                <button class="mb" onclick="setMood('pre','revenge',this)" title="Revenge trading">😠</button>
+                <button class="mb" onclick="setMood('pre','calm',this)">😌<span>Calmo</span></button>
+                <button class="mb" onclick="setMood('pre','focused',this)">🎯<span>Enfocado</span></button>
+                <button class="mb" onclick="setMood('pre','anxious',this)">😰<span>Ansioso</span></button>
+                <button class="mb" onclick="setMood('pre','fomo',this)">🤯<span>FOMO</span></button>
+                <button class="mb" onclick="setMood('pre','revenge',this)">😠<span>Revenge</span></button>
               </div>
             </div>
             <div class="form-g full">
@@ -580,11 +583,11 @@ select option{background:var(--s2);color:var(--t);}
             <div class="form-g full">
               <label class="fl">Estado mental POST-trade</label>
               <div class="mood-row" id="post-mood">
-                <button class="mb" onclick="setMood('post','calm',this)" title="Calmo">😌</button>
-                <button class="mb" onclick="setMood('post','satisfied',this)" title="Satisfecho">😊</button>
-                <button class="mb" onclick="setMood('post','frustrated',this)" title="Frustrado">😤</button>
-                <button class="mb" onclick="setMood('post','anxious',this)" title="Ansioso">😰</button>
-                <button class="mb" onclick="setMood('post','revenge',this)" title="Con ganas de revenge">😠</button>
+                <button class="mb" onclick="setMood('post','calm',this)">😌<span>Calmo</span></button>
+                <button class="mb" onclick="setMood('post','satisfied',this)">😊<span>Satisfecho</span></button>
+                <button class="mb" onclick="setMood('post','frustrated',this)">😤<span>Frustrado</span></button>
+                <button class="mb" onclick="setMood('post','anxious',this)">😰<span>Ansioso</span></button>
+                <button class="mb" onclick="setMood('post','revenge',this)">😠<span>Revenge</span></button>
               </div>
             </div>
             <div class="form-g full"><label class="fl">Reflexión post-trade</label><textarea id="t-ref" placeholder="¿Operaste desde el plan o desde el miedo? ¿Qué reveló este trade sobre tu identidad como trader?"></textarea></div>
