@@ -85,17 +85,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .sd.done{background:var(--pos-bg);border-color:#97C459;color:var(--pos-t);}
 .sd.today{border:1.5px solid #C9933A;color:#C9933A;font-weight:600;background:var(--gold-bg);}
 
-/* AI BOX */
-.ai-box{background:var(--s2);border:0.5px solid var(--b2);border-radius:var(--r);padding:16px;margin-top:12px;}
-.ai-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-.ai-av{width:26px;height:26px;border-radius:50%;background:var(--gold-bg);display:flex;align-items:center;justify-content:center;}
-.ai-av i{color:#C9933A;font-size:13px;}
-.ai-nm{font-size:11px;font-weight:600;color:var(--gold-text);}
-.ai-text{font-size:13px;color:var(--t);line-height:1.7;}
-.dot-a{display:flex;gap:4px;align-items:center;padding:4px 0;}
-.dot-a span{width:6px;height:6px;border-radius:50%;background:#C9933A;animation:bk 1.2s infinite;display:block;}
-.dot-a span:nth-child(2){animation-delay:.2s}.dot-a span:nth-child(3){animation-delay:.4s}
-@keyframes bk{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-5px);opacity:1}}
 
 /* FORMS */
 .form-g{display:flex;flex-direction:column;gap:5px;margin-bottom:0;}
@@ -427,10 +416,6 @@ select option{background:var(--s2);color:var(--t);}
             <div style="font-size:11px;color:var(--pos-t);opacity:.8;margin-top:2px;">Ahora abre MT5 — desde el plan, no desde el miedo.</div>
           </div>
         </div>
-        <div class="ai-box" id="ritual-ai" style="display:none;">
-          <div class="ai-head"><div class="ai-av"><i class="ti ti-robot"></i></div><div class="ai-nm">Reflexión del día · Claude</div></div>
-          <div id="ritual-ai-text"></div>
-        </div>
       </div>
 
       <!-- 5 VERDADES -->
@@ -465,11 +450,6 @@ select option{background:var(--s2);color:var(--t);}
             <div class="truth-insight">El mercado nunca repite exactamente. Proyectar el pasado (la última pérdida, el último win) contamina tu percepción del trade actual.</div>
           </div>
 
-          <button class="sbtn" onclick="analyzeTruths()"><i class="ti ti-robot"></i> Analizar mi estado con IA</button>
-        </div>
-        <div class="ai-box" id="truths-ai" style="display:none;">
-          <div class="ai-head"><div class="ai-av"><i class="ti ti-robot"></i></div><div class="ai-nm">Diagnóstico de creencias · Claude</div></div>
-          <div id="truths-ai-text"></div>
         </div>
       </div>
 
@@ -492,11 +472,6 @@ select option{background:var(--s2);color:var(--t);}
             <label class="fl">Tu reflexión</label>
             <textarea id="journal-answer" style="height:90px;" placeholder="Escribe tu reflexión honesta. Aquí no hay respuestas correctas, solo verdad..."></textarea>
           </div>
-          <button class="sbtn" onclick="analyzeJournal()"><i class="ti ti-robot"></i> Analizar mi reflexión con IA</button>
-        </div>
-        <div class="ai-box" id="journal-ai" style="display:none;">
-          <div class="ai-head"><div class="ai-av"><i class="ti ti-robot"></i></div><div class="ai-nm">Trabajo de identidad · Claude</div></div>
-          <div id="journal-ai-text"></div>
         </div>
       </div>
 
@@ -511,11 +486,6 @@ select option{background:var(--s2);color:var(--t);}
           <div class="ct"><i class="ti ti-heart-rate-monitor"></i> Zona negativa · Diagnóstico</div>
           <p style="font-size:13px;color:var(--t);line-height:1.65;margin-bottom:14px;">¿Cuántos trades consecutivos siguieron el plan vs. cuántos fueron impulsados por miedo? El patrón revela si estás en la zona negativa de Mark Douglas — donde las pérdidas pasadas contaminan las decisiones presentes.</p>
           <div id="zona-diagnostico" style="margin-bottom:14px;"></div>
-          <button class="sbtn" onclick="analyzeFears()"><i class="ti ti-robot"></i> Diagnosticar mis miedos con IA</button>
-        </div>
-        <div class="ai-box" id="fears-ai" style="display:none;">
-          <div class="ai-head"><div class="ai-av"><i class="ti ti-robot"></i></div><div class="ai-nm">Diagnóstico de miedos · Claude</div></div>
-          <div id="fears-ai-text"></div>
         </div>
       </div>
     </div>
@@ -593,11 +563,7 @@ select option{background:var(--s2);color:var(--t);}
             <div class="form-g full"><label class="fl">Reflexión post-trade</label><textarea id="t-ref" placeholder="¿Operaste desde el plan o desde el miedo? ¿Qué reveló este trade sobre tu identidad como trader?"></textarea></div>
           </div>
         </div>
-        <button class="sbtn" onclick="saveTrade()"><i class="ti ti-device-floppy"></i> Guardar trade y analizar</button>
-      </div>
-      <div class="ai-box" id="trade-ai" style="display:none;">
-        <div class="ai-head"><div class="ai-av"><i class="ti ti-robot"></i></div><div class="ai-nm">Análisis psicológico · Claude · Mark Douglas</div></div>
-        <div id="trade-ai-text"></div>
+        <button class="sbtn" onclick="saveTrade()"><i class="ti ti-device-floppy"></i> Guardar trade</button>
       </div>
     </div>
 
@@ -617,7 +583,6 @@ select option{background:var(--s2);color:var(--t);}
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
           <div class="ct" style="margin:0;"><i class="ti ti-notebook"></i> Mi Trading Plan · XAU/USD</div>
-          <button class="sbtn-outline" onclick="analyzePlan()"><i class="ti ti-robot"></i> Analizar con IA</button>
         </div>
         <div class="plan-g">
           <div>
@@ -658,10 +623,6 @@ select option{background:var(--s2);color:var(--t);}
             <button class="arb" onclick="addRule('pl-check')"><i class="ti ti-plus"></i> Agregar ítem</button>
           </div>
         </div>
-      </div>
-      <div class="ai-box" id="plan-ai" style="display:none;">
-        <div class="ai-head"><div class="ai-av"><i class="ti ti-robot"></i></div><div class="ai-nm">Análisis del plan · Claude · Mark Douglas</div></div>
-        <div id="plan-ai-text"></div>
       </div>
     </div>
 
@@ -1072,17 +1033,8 @@ function toggleStep(i) {
   }
   const allDone = stepsCompleted.length >= 5;
   document.getElementById('ritual-complete').style.display = allDone ? 'block' : 'none';
-  if (allDone && stepsCompleted.length === 5) triggerRitualAI();
 }
 
-async function triggerRitualAI() {
-  const ai = document.getElementById('ritual-ai');
-  ai.style.display = 'block';
-  document.getElementById('ritual-ai-text').innerHTML = loading();
-  const today = new Date().toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' });
-  const prompt = `Eres un coach de psicología del trading basado en Mark Douglas. El trader acaba de completar su ritual de apertura completo (respiración + verdad fundamental + afirmación de identidad + revisión de plan + checklist de mercado). Es ${today}. Escríbele una reflexión motivadora pero honesta — no condescendiente — de máx 3 párrafos en español. Recuérdale que el ritual no garantiza resultados, sino que lo prepara para operar desde el trader sólido que ya es, no desde el miedo. Cierra con una pregunta concreta que lo lleve al mercado con la mente correcta.`;
-  await callAI(prompt, 'ritual-ai-text');
-}
 
 // ── 5 Verdades ──
 function setTruth(i, val, btn) {
@@ -1093,27 +1045,6 @@ function setTruth(i, val, btn) {
   btn.classList.add(val === 'yes' ? 'active-yes' : 'active-no');
 }
 
-async function analyzeTruths() {
-  const box = document.getElementById('truths-ai');
-  box.style.display = 'block';
-  document.getElementById('truths-ai-text').innerHTML = loading();
-  const labels = ['Cualquier cosa puede pasar', 'No necesito saber qué sigue', 'Distribución aleatoria de resultados', 'Edge = probabilidad, no certeza', 'Cada momento es único'];
-  const status = labels.map((l, i) => `Verdad ${i+1} (${l}): ${truthStates[i] || 'sin evaluar'}`).join('; ');
-  const prompt = `Eres un coach de psicología del trading basado en Mark Douglas (Trading in the Zone). El trader evaluó cuánto ha internalizado las 5 verdades fundamentales: ${status}. Analiza en español (máx 4 párrafos): qué patrón ves en las verdades que aún no ha internalizado, qué miedos del trader están probablemente activos como consecuencia, y qué ejercicio concreto podría hacer esta semana para trabajar las verdades que marcó como "Aún no". Sé directo, honesto y socrático — sin bullet points.`;
-  await callAI(prompt, 'truths-ai-text');
-}
-
-// ── Yo Soy / Diario ──
-async function analyzeJournal() {
-  const ans = document.getElementById('journal-answer').value.trim();
-  if (!ans) { alert('Escribe tu reflexión primero.'); return; }
-  const box = document.getElementById('journal-ai');
-  box.style.display = 'block';
-  document.getElementById('journal-ai-text').innerHTML = loading();
-  const q = document.getElementById('journal-q-text').textContent;
-  const prompt = `Eres un coach de psicología del trading basado en Mark Douglas. El trader respondió a esta pregunta de identidad: "${q}". Su respuesta fue: "${ans}". Analiza en español (máx 4 párrafos): qué revela esta reflexión sobre su identidad como trader, si sigue operando los trades como tests de su valor personal, qué creencia limitante subyacente aparece, y hazle UNA pregunta socrática que lo lleve más profundo — la más incómoda que puedas hacer. No valides vacíamente, sé honesto.`;
-  await callAI(prompt, 'journal-ai-text');
-}
 
 // ── Miedos ──
 function renderFearTracker() {
@@ -1136,18 +1067,6 @@ function renderFearTracker() {
   zd.innerHTML = `<div style="font-size:13px;font-weight:600;color:${color};margin-bottom:6px;">${zona}</div><div style="font-size:12px;color:var(--t2);">Últimos ${last10.length} trades: ${planok} con plan · ${noplan} sin plan (${pct}% sin disciplina)</div>`;
 }
 
-async function analyzeFears() {
-  const FEARS = ['Miedo a perder', 'Miedo a dejar pasar', 'Miedo a estar equivocado', 'Miedo a dejar dinero en mesa'];
-  const counts = {}; FEARS.forEach(f => counts[f] = 0);
-  trades.forEach(t => (t.fears || []).forEach(f => { if (counts[f] !== undefined) counts[f]++; }));
-  const box = document.getElementById('fears-ai');
-  box.style.display = 'block';
-  document.getElementById('fears-ai-text').innerHTML = loading();
-  const fearSummary = FEARS.map(f => `${f}: ${counts[f]} veces`).join('; ');
-  const planRate = trades.length ? Math.round((trades.filter(t => t.followPlan === true).length / trades.length) * 100) : 0;
-  const prompt = `Eres un coach de psicología del trading basado en Mark Douglas. El trader tiene estos datos de miedos detectados: ${fearSummary}. Tasa de disciplina: ${planRate}%. Total trades: ${trades.length}. Analiza en español (máx 4 párrafos): cuál es su miedo dominante, cómo ese miedo distorsiona su percepción del mercado según Douglas, si hay señales de zona negativa (pérdidas pasadas contaminando decisiones presentes), y qué ejercicio del casino de Douglas le recomendarías para comenzar a disolver ese miedo. Directo y socrático.`;
-  await callAI(prompt, 'fears-ai-text');
-}
 
 // ── Registro de trade ──
 function setMood(type, mood, btn) {
@@ -1201,22 +1120,6 @@ async function saveTrade() {
       .catch(() => {});
   }
 
-  const ai = document.getElementById('trade-ai');
-  ai.style.display = 'block';
-  document.getElementById('trade-ai-text').innerHTML = loading();
-  ai.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-  const prompt = `Eres un coach de psicología del trading basado en Mark Douglas (Trading in the Zone / El Trader Disciplinado). Analiza este trade de XAU/USD de un trader en transformación de identidad — su problema raíz es que los trades funcionaban como tests de su valor personal:
-
-TRADE: ${trade.dir} | Entrada: ${trade.entry} | SL: ${trade.sl} | TP: ${trade.tp} | R/R: ${trade.rr} | Resultado: ${trade.result} | P&L: $${trade.pnl}
-Estado mental pre: ${trade.preMood || 'no especificado'} | Estado mental post: ${trade.postMood || 'no especificado'}
-Miedos identificados: ${trade.fears.length ? trade.fears.join(', ') : 'ninguno'}
-Siguió el plan: ${trade.followPlan === true ? 'Sí' : trade.followPlan === 'partial' ? 'Parcialmente' : trade.followPlan === false ? 'No' : 'No especificado'}
-Setup: ${trade.reason || 'no especificado'}
-Reflexión: ${trade.reflection || 'ninguna'}
-
-Responde en español, máx 4 párrafos. Analiza: (1) qué revela este trade sobre si sigue operando desde su identidad frágil o desde el trader sólido, (2) si operó desde el plan o desde alguno de los 4 miedos de Douglas, (3) qué patrón de creencia subyace — especialmente si el resultado afectó su autopercepción, (4) una pregunta socrática incómoda que lo lleve más profundo. Sin bullet points. Honesto y directo.`;
-  await callAI(prompt, 'trade-ai-text');
 }
 
 // ── Trading Plan ──
@@ -1227,17 +1130,6 @@ function addRule(listId) {
   l.appendChild(d); d.querySelector('textarea').focus();
 }
 
-async function analyzePlan() {
-  const ent = [...document.querySelectorAll('#pl-ent .re')].map(t => t.value).join('; ');
-  const proh = [...document.querySelectorAll('#pl-proh .re')].map(t => t.value).join('; ');
-  const risk = [...document.querySelectorAll('#pl-risk .re')].map(t => t.value).join('; ');
-  const chk = [...document.querySelectorAll('#pl-check .re')].map(t => t.value).join('; ');
-  const box = document.getElementById('plan-ai');
-  box.style.display = 'block';
-  document.getElementById('plan-ai-text').innerHTML = loading();
-  const prompt = `Eres un coach de psicología del trading basado en Mark Douglas. Analiza este trading plan para XAU/USD: ENTRADAS: ${ent} | PROHIBICIONES: ${proh} | RIESGO: ${risk} | CHECKLIST: ${chk}. Responde en español, máx 5 párrafos: (1) fortalezas psicológicas del plan, (2) vulnerabilidades que podrían activar los 4 miedos del trader, (3) qué falta para proteger la identidad del trader sólido contra la zona negativa, (4) sugerencia concreta de mejora. Sin bullet points, directo y honesto.`;
-  await callAI(prompt, 'plan-ai-text');
-}
 
 // ── Dashboard ──
 function renderDashboard() {
@@ -1494,26 +1386,6 @@ function renderMente() {
   });
 }
 
-// ── Claude API — llama al backend proxy ──
-function loading() {
-  return '<div class="dot-a"><span></span><span></span><span></span></div>';
-}
-
-async function callAI(prompt, targetId) {
-  try {
-    const r = await fetch('/api/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
-    });
-    const d = await r.json();
-    if (d.error) throw new Error(d.error);
-    const t = d.text || 'Sin respuesta.';
-    document.getElementById(targetId).innerHTML = `<div class="ai-text">${t.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>')}</div>`;
-  } catch (e) {
-    document.getElementById(targetId).innerHTML = `<div class="ai-text" style="color:var(--neg-t)">Error al conectar con la IA: ${e.message}</div>`;
-  }
-}
 
 // ── Init ──
 async function init() {
